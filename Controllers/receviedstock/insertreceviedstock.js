@@ -5,7 +5,8 @@ var ReceviedStockData = require('../../app/Models/stock');
 var idb = require('../core/generateID')
 var addreceviedstockdata = async (req, res) => {
     try {
-        var params = req.body;
+                    var params = JSON.parse(req.body.buydata);
+
         var result = await addreceviedstockdatavalidations.validate(params);
         if (result.error) {
             console.log("error", result, result.error)
