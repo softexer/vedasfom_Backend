@@ -49,5 +49,5 @@ var customer = new schema({
     },
 
 });
-dbs.connection();
+dbs.connectToDB();
 module.exports = mongoose.model('customers', customer)
