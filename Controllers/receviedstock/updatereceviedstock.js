@@ -1,6 +1,6 @@
 
 var { updatereceviedstocksdatavalidations } = require('./validationsreceviedstock');
-var ReceviedStockData = require('../../app/Model/receviedstock');
+var ReceviedStockData = require('../../app/Models/stock');
 var updatereceviedstocksdata = async (req, res) => {
     try {
         var params = req.body;

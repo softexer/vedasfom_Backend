@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var dbs = require('./dbconnection')
+var dbs = require('./DBConnection')
 var schema = mongoose.Schema;
 var customer = new schema({
     PhoneNumber: {
