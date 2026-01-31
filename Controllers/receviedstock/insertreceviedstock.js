@@ -63,7 +63,7 @@ try {
 
     return res.status(200).json({
       response: 3,
-      message: "Product inserted successfully"
+      message: "Buy data inserted successfully"
     });
 
   } catch (error) {

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+var dbs = require('./DBConnection')
 
 const livestockSchema = new mongoose.Schema({
     LivestockID: {
@@ -81,5 +82,6 @@ const livestockSchema = new mongoose.Schema({
     default: Date.now
   }
 }, { timestamps: true });
+dbs.connectToDB();
 
 module.exports = mongoose.model("Livestock", livestockSchema);
