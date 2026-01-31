@@ -1,7 +1,7 @@
 var Joi = require('@hapi/joi')
 var addreceviedstockdatavalidations = Joi.object({
     category: Joi.string()
-        .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG")
+        .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG","NATI")
         .required(),
 
     group: Joi.string()
