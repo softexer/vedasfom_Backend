@@ -30,71 +30,74 @@ router.get("/fetchstock", (req, res) => {
 
     const group = params.address; // req.body.group / req.params.group
 
-    ReceviedStockData.aggregate([
-        // 1️⃣ Match ONLY by group
-        {
-            $match: {
-                group: group
-            }
-        },
+ ReceviedStockData.aggregate([
+ {
+    $match: {
+      group: group
+    }
+  },
 
-        // 2️⃣ Group by category + breederName
-        {
-            $group: {
-                _id: {
-                    category: "$category",
-                    breederName: "$breederName"
-                },
-                male: {
-                    $sum: {
-                        $convert: {
-                            input: "$male",
-                            to: "int",
-                            onError: 0,
-                            onNull: 0
-                        }
-                    }
-                },
-                female: {
-                    $sum: {
-                        $convert: {
-                            input: "$female",
-                            to: "int",
-                            onError: 0,
-                            onNull: 0
-                        }
-                    }
-                },
-                kids: {
-                    $sum: {
-                        $convert: {
-                            input: "$kids",
-                            to: "int",
-                            onError: 0,
-                            onNull: 0
-                        }
-                    }
-                },
-                averageWeight: {
-                    $avg: {
-                        $convert: {
-                            input: "$averageWeight",
-                            to: "double",
-                            onError: 0,
-                            onNull: 0
-                        }
-                    }
-                }
-            }
-        },
+  // 2️⃣ Group by category + breederName
+  {
+    $group: {
+      _id: {
+        category: "$category",
+        breederName: "$breederName",
+        feedName: "$feedName"
+      },
 
-        // 3️⃣ Project final output
-       {
+      male: {
+        $sum: {
+          $convert: {
+            input: "$male",
+            to: "int",
+            onError: 0,
+            onNull: 0
+          }
+        }
+      },
+
+      female: {
+        $sum: {
+          $convert: {
+            input: "$female",
+            to: "int",
+            onError: 0,
+            onNull: 0
+          }
+        }
+      },
+
+      kids: {
+        $sum: {
+          $convert: {
+            input: "$kids",
+            to: "int",
+            onError: 0,
+            onNull: 0
+          }
+        }
+      },
+
+      averageWeight: {
+        $avg: {
+          $convert: {
+            input: "$averageWeight",
+            to: "double",
+            onError: 0,
+            onNull: 0
+          }
+        }
+      }
+    }
+  },
+  {
     $project: {
       _id: 0,
+category: "$_id.category",
       group: "$_id.group",
       breederName: "$_id.breederName",
-category: "$_id.category",
+      feedName: "$_id.feedName",
       male: { $toString: "$male" },
       female: { $toString: "$female" },
       kids: { $toString: "$kids" },
@@ -107,14 +110,13 @@ category: "$_id.category",
 ])
 
 
+
         .then(result => {
 
-            res.json({ response: 3, message: "Total stock data fetch successfully", TotalStcok: result })
-
-            res.status(200).json(result);
+            return res.json({ response: 3, message: "Total stock data fetch successfully", TotalStcok: result })
         })
         .catch(err => {
-            res.status(500).json({ error: err.message });
+            return res.status(500).json({ error: err.message });
         });
 })
 module.exports = router;
