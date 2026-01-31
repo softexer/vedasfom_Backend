@@ -9,6 +9,7 @@ var addreceviedstockdatavalidations = Joi.object({
     .required(),
     timestamp: Joi.string().required(),
   breederName: Joi.string().optional(),
+  feedName:Joi.string().optional(),
   male: Joi.string().min(0).strict().required(),
   female: Joi.string().min(0).strict().optional(),
   kids: Joi.string().min(0).strict().optional(),
@@ -30,6 +31,7 @@ var addsalestockdatavalidations= Joi.object({
     .valid("J", "G")
     .required(),
     timestamp: Joi.string().required(),
+    feedName:Joi.string().optional(),
   breederName: Joi.string().optional(),
   male: Joi.string().min(0).strict().required(),
   female: Joi.string().min(0).strict().optional(),

@@ -21,13 +21,18 @@ router.delete("/deletereceviedstock",(req,res,next)=>{
     ReceviedStock.deletereceviedstock(req,res)
 })
 router.get("/fetchstock",(req,res)=>{
+  const { address } = req.query;
+
+    var params = req.query;
  ReceviedStockData.aggregate([
+    {$match: {group: params.address}},
   // 1️⃣ Group received stock
   {
     $group: {
       _id: {
         category: "$category",
-        group: "$group"
+        group: "$group",
+        feedName: "$feedName"
       },
       receivedMale: { $sum: { $toInt: "$male" } },
       receivedFemale: { $sum: { $toInt: "$female" } },

@@ -29,7 +29,9 @@ const livestockSchema = new mongoose.Schema({
   breederName: {
     type: String
   },
-
+feedName:{
+type:String
+},
   male: {
     type: String,
     default: "0"

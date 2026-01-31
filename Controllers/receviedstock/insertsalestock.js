@@ -58,7 +58,9 @@ try {
       totalCost: params.totalCost,
       stand: params.stand,
       description: params.description,
-      image: filedbpath
+      image: filedbpath,
+      timestamp: params.timestamp,
+      feedName:params.feedName
     });
 
     return res.status(200).json({
