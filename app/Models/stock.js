@@ -78,10 +78,10 @@ const livestockSchema = new mongoose.Schema({
   },
 
   timestamp: {
-    type: Date,
-    default: Date.now
+    type: String,
+    default: ""
   }
-}, { timestamps: true });
+});
 dbs.connectToDB();
 
 module.exports = mongoose.model("Livestock", livestockSchema);
