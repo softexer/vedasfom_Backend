@@ -1,19 +1,19 @@
 const mongoose = require('mongoose');
 const config = require('../ConfigFiles/config.json');
+
 var dbConnection = {
-  connectToDB : function connectWithDatabase() {
-    console.log("Called Database connection");
-//mongoose.set('useFindAndModify', false);
-  // mongoose.set('useCreateIndex', true);	
-    mongoose.connect(config.connectionString,{ useNewUrlParser: true, useUnifiedTopology: true });
-    var db = mongoose.connection;
-    db.on('error', console.error.bind(console, 'connection error:'));
-    db.once('open', function callback () {
-      console.log("Mongodb is Connected successfully");
-    });
-    } 
-}
+  connectToDB: async function () {
+    try {
+      console.log("Called Database connection");
+
+      await mongoose.connect(config.connectionString);
+
+      console.log("MongoDB is connected successfully");
+    } catch (error) {
+      console.error("MongoDB connection failed:", error);
+      process.exit(1); // optional but recommended
+    }
+  }
+};
+
 module.exports = dbConnection;
-
-
-
