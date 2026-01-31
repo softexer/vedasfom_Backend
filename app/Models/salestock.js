@@ -80,7 +80,13 @@ const salestockSchema = new mongoose.Schema({
   timestamp: {
     type: String,
     default: ""
-  }
+  },
+  quantity:{
+    type:String
+},
+averagePerEgg:{
+     type:String
+},
 });
 
 module.exports = mongoose.model("Salestock", salestockSchema);

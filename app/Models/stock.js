@@ -29,6 +29,12 @@ const livestockSchema = new mongoose.Schema({
   breederName: {
     type: String
   },
+  quantity:{
+    type:String
+},
+averagePerEgg:{
+     type:String
+},
 feedName:{
 type:String
 },

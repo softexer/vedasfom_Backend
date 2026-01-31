@@ -60,7 +60,9 @@ try {
       description: params.description,
       image: filedbpath,
       timestamp: params.timestamp,
-      feedName:params.feedName
+      feedName:params.feedName,
+       averagePerEgg:params.averagePerEgg,
+      quantity:params.quantity
     });
 
     return res.status(200).json({
