@@ -15,7 +15,8 @@ const livestockSchema = new mongoose.Schema({
       "COW",
       "GOAT",
       "PIG",
-      "FEED"
+      "FEED",
+      "EGG"
     ],
     required: true
   },
