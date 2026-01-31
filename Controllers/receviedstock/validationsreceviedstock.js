@@ -66,5 +66,5 @@ var deletereceviedstocksdatavalidations = Joi.object({
 })
 module.exports = {
     addreceviedstockdatavalidations, updatereceviedstocksdatavalidations, fetchreceviedstocksdatavalidations,
-    deletereceviedstocksdatavalidations
+    deletereceviedstocksdatavalidations,addsalestockdatavalidations
 }
