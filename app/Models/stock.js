@@ -16,7 +16,8 @@ const livestockSchema = new mongoose.Schema({
       "GOAT",
       "PIG",
       "FEED",
-      "EGG"
+      "EGG",
+      "NATI"
     ],
     required: true
   },
@@ -26,7 +27,10 @@ const livestockSchema = new mongoose.Schema({
     enum: ["J", "G"],
     required: true
   },
-
+chicks:{
+type:String,
+default:"0"
+},
   breederName: {
     type: String
   },

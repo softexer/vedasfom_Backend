@@ -1,31 +1,32 @@
 var Joi = require('@hapi/joi')
 var addreceviedstockdatavalidations = Joi.object({
     category: Joi.string()
-        .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED","EGG")
+        .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG")
         .required(),
 
     group: Joi.string()
         .valid("J", "G")
         .required(),
     timestamp: Joi.string().required(),
-     breederName: Joi.string().optional(),
+    breederName: Joi.string().optional(),
     male: Joi.string().optional().allow(''),
     female: Joi.string().optional().allow(''),
     kids: Joi.string().optional().allow(''),
+    chicks: Joi.string().optional().allow(''),
     averageWeight: Joi.string().optional().allow(''),
     totalWeight: Joi.string().optional().allow(''),
     cost: Joi.string().optional().allow(''),
-    totalCost:  Joi.string().optional().allow(''),
-    stand:  Joi.string().optional().allow(''),
-    description:  Joi.string().optional().allow(''),
-    quantity:  Joi.string().optional().allow(''),
-    averagePerEgg:  Joi.string().optional().allow(''),
+    totalCost: Joi.string().optional().allow(''),
+    stand: Joi.string().optional().allow(''),
+    description: Joi.string().optional().allow(''),
+    quantity: Joi.string().optional().allow(''),
+    averagePerEgg: Joi.string().optional().allow(''),
 });
 
 
 var addsalestockdatavalidations = Joi.object({
     category: Joi.string()
-        .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG","NATI")
+        .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG", "NATI")
         .required(),
 
     group: Joi.string()
@@ -37,14 +38,15 @@ var addsalestockdatavalidations = Joi.object({
     male: Joi.string().optional().allow(''),
     female: Joi.string().optional().allow(''),
     kids: Joi.string().optional().allow(''),
+    chicks: Joi.string().optional().allow(''),
     averageWeight: Joi.string().optional().allow(''),
     totalWeight: Joi.string().optional().allow(''),
     cost: Joi.string().optional().allow(''),
-    totalCost:  Joi.string().optional().allow(''),
-    stand:  Joi.string().optional().allow(''),
-    description:  Joi.string().optional().allow(''),
-    quantity:  Joi.string().optional().allow(''),
-    averagePerEgg:  Joi.string().optional().allow(''),
+    totalCost: Joi.string().optional().allow(''),
+    stand: Joi.string().optional().allow(''),
+    description: Joi.string().optional().allow(''),
+    quantity: Joi.string().optional().allow(''),
+    averagePerEgg: Joi.string().optional().allow(''),
 });
 
 var updatereceviedstocksdatavalidations = Joi.object({

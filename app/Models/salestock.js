@@ -16,11 +16,15 @@ const salestockSchema = new mongoose.Schema({
       "GOAT",
       "PIG",
       "FEED",
-      "EGG"
+      "EGG",
+      "NATI"
     ],
     required: true
   },
-
+chicks:{
+type:String,
+default:"0"
+},
   group: {
     type: String, // J or G (or any future group)
     enum: ["J", "G"],
