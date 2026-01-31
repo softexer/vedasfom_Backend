@@ -5,25 +5,31 @@ var idb = require('../core/generateID');
 const addreceviedstockdata = async (req, res) => {
   try {
 
-    // SAFE PARSE
-    let params;
-    try {
-      params = typeof req.body.buydata === "string"
-        ? JSON.parse(req.body.buydata)
-        : req.body.buydata;
-    } catch {
-      return res.status(400).json({ message: "Invalid buydata JSON" });
-    }
+if (!req.body || !req.body.buydata) {
+  return res.status(400).json({
+    message: "buydata is missing in request"
+  });
+}
+
+let params;
+try {
+  params = JSON.parse(req.body.buydata);
+} catch (err) {
+  return res.status(400).json({
+    message: "buydata must be valid JSON string"
+  });
+}
 
     // VALIDATION
-    const { error } = addreceviedstockdatavalidations.validate(params);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    }
-
+    var result = addreceviedstockdatavalidations.validate(params);
+            console.log("result 400 error", result.error)
+            if (result.error) {
+                res.statusCode = 400;
+                return res.json({ response: 0, message: result.error.details[0].message })
+            }
     // IMAGE CHECK
     if (!req.files || !req.files.image) {
-      return res.status(400).json({ message: "Image is required" });
+      return res.status(400).json({ message: "image is required" });
     }
 
     const file = req.files.image;

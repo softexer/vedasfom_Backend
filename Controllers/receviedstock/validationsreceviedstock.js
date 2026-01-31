@@ -26,7 +26,7 @@ var updatereceviedstocksdatavalidations = Joi.object({
         ProductName: Joi.string().required(),
         Price: Joi.number().required(),
         Quantity: Joi.number().required(),
-        Productimage: Joi.string().required(),
+       // Productimage: Joi.string().required(),
         sentfromfactory: Joi.number().strict().required(),
         Recevied: Joi.number().strict().required()
     }).required()).required(),
