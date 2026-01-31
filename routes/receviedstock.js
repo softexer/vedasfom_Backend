@@ -7,6 +7,10 @@ router.use(fileupload({ limits: { fileSize: 50 * 1024 * 1024 } }));
 router.post("/addreceviedstock",(req,res)=>{
     ReceviedStock.addreceviedstock(req,res)
 })
+router.post("/addsalestock",(req,res)=>{
+    ReceviedStock.addsalestockdata(req,res)
+})
+
 router.put("/updatereceviedstock",(req,res,next)=>{
     ReceviedStock.updatereceviedstock(req,res)
 })
@@ -16,19 +20,73 @@ router.post("/fetchreceviedstock",(req,res,next)=>{
 router.delete("/deletereceviedstock",(req,res,next)=>{
     ReceviedStock.deletereceviedstock(req,res)
 })
-router.get("/fetchstocktest",(req,res)=>{
-    ReceviedStockData.aggregate([
+router.get("/fetchstock",(req,res)=>{
+ ReceviedStockData.aggregate([
+  // 1️⃣ Group received stock
   {
     $group: {
       _id: {
         category: "$category",
         group: "$group"
       },
-      male: { $sum: { $toInt: "$male" } },
-      female: { $sum: { $toInt: "$female" } },
+      receivedMale: { $sum: { $toInt: "$male" } },
+      receivedFemale: { $sum: { $toInt: "$female" } },
       averageWeight: { $avg: { $toDouble: "$averageWeight" } }
     }
   },
+
+  // 2️⃣ Join sales stock
+  {
+    $lookup: {
+      from: "salestocks", // ⚠️ collection name (plural, lowercase)
+      let: {
+        category: "$_id.category",
+        group: "$_id.group"
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $and: [
+                { $eq: ["$category", "$$category"] },
+                { $eq: ["$group", "$$group"] }
+              ]
+            }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            soldMale: { $sum: { $toInt: "$male" } },
+            soldFemale: { $sum: { $toInt: "$female" } }
+          }
+        }
+      ],
+      as: "saleData"
+    }
+  },
+
+  // 3️⃣ Calculate remaining stock
+  {
+    $addFields: {
+      soldMale: {
+        $ifNull: [{ $arrayElemAt: ["$saleData.soldMale", 0] }, 0]
+      },
+      soldFemale: {
+        $ifNull: [{ $arrayElemAt: ["$saleData.soldFemale", 0] }, 0]
+      }
+    }
+  },
+
+  // 4️⃣ Minus logic
+  {
+    $addFields: {
+      male: { $subtract: ["$receivedMale", "$soldMale"] },
+      female: { $subtract: ["$receivedFemale", "$soldFemale"] }
+    }
+  },
+
+  // 5️⃣ Final projection
   {
     $project: {
       _id: 0,

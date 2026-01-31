@@ -19,6 +19,29 @@ var addreceviedstockdatavalidations = Joi.object({
   stand: Joi.string().optional(),
   description: Joi.string().required(),
 });
+
+
+addsalestockdatavalidations= Joi.object({
+     category: Joi.string()
+    .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED")
+    .required(),
+
+  group: Joi.string()
+    .valid("J", "G")
+    .required(),
+    timestamp: Joi.string().required(),
+  breederName: Joi.string().optional(),
+  male: Joi.string().min(0).strict().required(),
+  female: Joi.string().min(0).strict().optional(),
+  kids: Joi.string().min(0).strict().optional(),
+  averageWeight: Joi.string().min(0).strict().required(),
+  totalWeight: Joi.string().min(0).strict().required(),
+  cost: Joi.string().min(0).strict().required(),
+  totalCost: Joi.string().min(0).strict().required(),
+  stand: Joi.string().optional(),
+  description: Joi.string().required(),
+});
+
 var updatereceviedstocksdatavalidations = Joi.object({
     ReceviedStockID: Joi.string().required(),
     ReceviedStocklist: Joi.array().items(Joi.object().keys({

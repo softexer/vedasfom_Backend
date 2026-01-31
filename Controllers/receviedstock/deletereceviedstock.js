@@ -12,13 +12,13 @@ var deletereceviedstocksdata = async (req, res) => {
             return res.send(message)
         }
 
-        var fetchreceviedstock = await ReceviedStockData.findOne({ ReceviedStockID: params.ReceviedStockID }).exec();
+        var fetchreceviedstock = await ReceviedStockData.findOne({ LivestockID: params.ReceviedStockID }).exec();
         if (fetchreceviedstock) {
-            var receviedstockDatadelete = await ReceviedStockData.deleteOne({ ReceviedStockID: params.ReceviedStockID });
+            var receviedstockDatadelete = await ReceviedStockData.deleteOne({ LivestockID: params.ReceviedStockID });
             if (receviedstockDatadelete.deletedCount > 0) {
-                return res.json({ response: 3, message: "Recevied Data deleted successfully" })
+                return res.json({ response: 3, message: "stock Data deleted successfully" })
             } else {
-                return res.json({ response: 0, message: "Recevied Data deleted Failure" })
+                return res.json({ response: 0, message: "stock Data deleted Failure" })
             }
         } else {
             return res.json({ response: 0, message: "Data not found" })
