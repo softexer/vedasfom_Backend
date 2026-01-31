@@ -21,7 +21,7 @@ var addreceviedstockdatavalidations = Joi.object({
 });
 
 
-addsalestockdatavalidations= Joi.object({
+var addsalestockdatavalidations= Joi.object({
      category: Joi.string()
     .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED")
     .required(),
