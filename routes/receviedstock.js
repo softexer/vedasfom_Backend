@@ -43,6 +43,7 @@ router.get("/fetchstock", (req, res) => {
       _id: {
         category: "$category",
         breederName: "$breederName",
+        group: "$group",
         feedName: "$feedName"
       },
 
