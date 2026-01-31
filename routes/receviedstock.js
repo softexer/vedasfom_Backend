@@ -24,26 +24,60 @@ router.get("/fetchstock",(req,res)=>{
   const { address } = req.query;
 
     var params = req.query;
- ReceviedStockData.aggregate([
-    {$match: {group: params.address}},
+    console.log(params);
+
+ReceviedStockData.aggregate([
+  // 0️⃣ Match group from params
+  {
+    $match: {
+      group: params.address
+    }
+  },
+
   // 1️⃣ Group received stock
   {
     $group: {
       _id: {
         category: "$category",
-        group: "$group",
-        feedName: "$feedName"
+        group: "$group"
       },
-      receivedMale: { $sum: { $toInt: "$male" } },
-      receivedFemale: { $sum: { $toInt: "$female" } },
-      averageWeight: { $avg: { $toDouble: "$averageWeight" } }
+      receivedMale: {
+        $sum: {
+          $convert: {
+            input: "$male",
+            to: "int",
+            onError: 0,
+            onNull: 0
+          }
+        }
+      },
+      receivedFemale: {
+        $sum: {
+          $convert: {
+            input: "$female",
+            to: "int",
+            onError: 0,
+            onNull: 0
+          }
+        }
+      },
+      averageWeight: {
+        $avg: {
+          $convert: {
+            input: "$averageWeight",
+            to: "double",
+            onError: 0,
+            onNull: 0
+          }
+        }
+      }
     }
   },
 
-  // 2️⃣ Join sales stock
+  // 2️⃣ Join sale stock (same group only)
   {
     $lookup: {
-      from: "salestocks", // ⚠️ collection name (plural, lowercase)
+      from: "salestocks",
       let: {
         category: "$_id.category",
         group: "$_id.group"
@@ -62,8 +96,26 @@ router.get("/fetchstock",(req,res)=>{
         {
           $group: {
             _id: null,
-            soldMale: { $sum: { $toInt: "$male" } },
-            soldFemale: { $sum: { $toInt: "$female" } }
+            soldMale: {
+              $sum: {
+                $convert: {
+                  input: "$male",
+                  to: "int",
+                  onError: 0,
+                  onNull: 0
+                }
+              }
+            },
+            soldFemale: {
+              $sum: {
+                $convert: {
+                  input: "$female",
+                  to: "int",
+                  onError: 0,
+                  onNull: 0
+                }
+              }
+            }
           }
         }
       ],
@@ -71,14 +123,15 @@ router.get("/fetchstock",(req,res)=>{
     }
   },
 
-  // 3️⃣ Calculate remaining stock
+  // 3️⃣ Safe defaults
   {
     $addFields: {
       soldMale: {
         $ifNull: [{ $arrayElemAt: ["$saleData.soldMale", 0] }, 0]
       },
       soldFemale: {
-        $ifNull: [{ $arrayElemAt: ["$saleData.soldFemale", 0] }, 0]
+        $ifNull: [{ $arrayElemAt: ["$saleData.soldFemale", 0] }, 0
+        ]
       }
     }
   },
@@ -91,7 +144,7 @@ router.get("/fetchstock",(req,res)=>{
     }
   },
 
-  // 5️⃣ Final projection
+  // 5️⃣ Final output
   {
     $project: {
       _id: 0,
@@ -105,6 +158,7 @@ router.get("/fetchstock",(req,res)=>{
     }
   }
 ])
+
 
     .then(result => {
 
