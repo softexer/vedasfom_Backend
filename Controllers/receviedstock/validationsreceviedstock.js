@@ -1,12 +1,14 @@
 var Joi = require('@hapi/joi')
 var addreceviedstockdatavalidations = Joi.object({
     category: Joi.string()
-        .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG","NATI")
+        .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG", "NATI")
         .required(),
 
     group: Joi.string()
         .valid("J", "G")
         .required(),
+    feedName: Joi.string().optional().allow(''),
+
     timestamp: Joi.string().required(),
     breederName: Joi.string().optional(),
     male: Joi.string().optional().allow(''),
