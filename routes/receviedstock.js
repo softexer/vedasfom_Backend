@@ -182,6 +182,7 @@ router.get("/stockdownload", async (req, res) => {
             TotalWeight: Number(doc.totalWeight || 0),
             Cost: Number(doc.cost || 0),
             TotalCost: Number(doc.totalCost || 0),
+            Description: doc.description || "",
 
             // ✅ timestamp → dd-mm-yyyy
             Date: formatDateFromTimestamp(

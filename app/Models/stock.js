@@ -97,7 +97,12 @@ type:String
   timestamp: {
     type: String,
     default: ""
-  }
+  },
+  batchName:{
+    type:String,
+    default:""
+  },
+  
 });
 dbs.connectToDB();
 

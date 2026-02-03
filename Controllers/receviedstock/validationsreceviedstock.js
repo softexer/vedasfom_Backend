@@ -23,6 +23,7 @@ phoneNumber: Joi.string().optional().allow(''),
     description: Joi.string().optional().allow(''),
     quantity: Joi.string().optional().allow(''),
     averagePerEgg: Joi.string().optional().allow(''),
+    batchName: Joi.string().optional().allow(''),
 });
 
 
@@ -52,7 +53,10 @@ var addsalestockdatavalidations = Joi.object({
     sellerPhoneNumber: Joi.string().optional().allow(''),
     paymentMode: Joi.string().optional().allow(''),
     creditperson: Joi.string().optional().allow(''),
+    batchName: Joi.string().optional().allow(''),
 });
+
+
 
 var updatereceviedstocksdatavalidations = Joi.object({
     ReceviedStockID: Joi.string().required(),
