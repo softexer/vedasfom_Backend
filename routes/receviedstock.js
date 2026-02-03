@@ -80,6 +80,8 @@ router.get("/fetchstock", (req, res) => {
                                 group: "$_id.group",
                                 male: { $toString: "$male" },
                                 female: { $toString: "$female" },
+                                feedName: "$_id.feedName",
+                                breederName: "$_id.breederName",
                                 kids: "0",
                                 averageWeight: {
                                     $toString: { $round: ["$averageWeight", 2] }
@@ -90,6 +92,8 @@ router.get("/fetchstock", (req, res) => {
                                 group: "$_id.group",
                                 male: "0",
                                 female: "0",
+                                 feedName: "$_id.feedName",
+                                breederName: "$_id.breederName",
                                 kids: { $toString: "$kids" },
                                 averageWeight: {
                                     $toString: { $round: ["$averageWeight", 2] }
@@ -105,6 +109,8 @@ router.get("/fetchstock", (req, res) => {
                                 male: { $toString: "$male" },
                                 female: { $toString: "$female" },
                                 kids: { $toString: "$kids" },
+                                 feedName: "$_id.feedName",
+                                breederName: "$_id.breederName",
                                 averageWeight: {
                                     $toString: { $round: ["$averageWeight", 2] }
                                 }
