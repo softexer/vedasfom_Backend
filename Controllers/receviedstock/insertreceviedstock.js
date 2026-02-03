@@ -60,7 +60,7 @@ const addreceviedstockdata = async (req, res) => {
                     description: params.description,
                     image: filedbpath,
                     timestamp: params.timestamp,
-                    feedName: params.feedName,
+                    feedName: feedItem.feedName,
                     averagePerEgg: params.averagePerEgg,
                     quantity: params.quantity,
                     phoneNumber: params.phoneNumber,
