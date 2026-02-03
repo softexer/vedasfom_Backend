@@ -28,19 +28,27 @@ const addreceviedstockdata = async (req, res) => {
             return res.json({ response: 0, message: result.error.details[0].message })
         }
         // IMAGE CHECK
-        if (!req.files || !req.files.image) {
-            return res.status(400).json({ message: "image is required" });
+        var file;
+        var filedbpath;
+        if (req.files && req.files.image) {
+            file = req.files.image;
+            const imageid = "vid@" + idb.GenerateIDS(9);
+            const filename = imageid + file.name;
+            const filemvpath = `./public/images/${filename}`;
+            filedbpath = `/images/${filename}`;
+
+            await new Promise((resolve, reject) => {
+            file.mv(filemvpath, err => err ? reject(err) : resolve());
+            });
+        } else {
+            filedbpath = ""; // No image provided
         }
 
-        const file = req.files.image;
-        const imageid = "vid@" + idb.GenerateIDS(9);
-        const filename = imageid + file.name;
-        const filemvpath = `./public/images/${filename}`;
-        const filedbpath = `/images/${filename}`;
-
-        await new Promise((resolve, reject) => {
-            file.mv(filemvpath, err => err ? reject(err) : resolve());
-        });
+        if (filedbpath) {
+            await new Promise((resolve, reject) => {
+            file.mv(filedbpath, err => err ? reject(err) : resolve());
+            });
+        }
 
         if (params.category === "FEED") {
             for (const feedItem of params.feed) {
