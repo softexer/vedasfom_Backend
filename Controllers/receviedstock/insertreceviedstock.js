@@ -66,6 +66,7 @@ const addreceviedstockdata = async (req, res) => {
                     averagePerEgg: params.averagePerEgg,
                     quantity: params.quantity,
                     phoneNumber: params.phoneNumber,
+                    batchName: params.batchName,
                 });
             }
         } else {
@@ -89,6 +90,7 @@ const addreceviedstockdata = async (req, res) => {
                 averagePerEgg: params.averagePerEgg,
                 quantity: params.quantity,
                 phoneNumber: params.phoneNumber,
+                batchName: params.batchName,
             });
         }
         return res.status(200).json({
