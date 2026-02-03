@@ -8,6 +8,18 @@ var addreceviedstockdatavalidations = Joi.object({
         .valid("J", "G")
         .required(),
     feedName: Joi.string().optional().allow(''),
+      feed: Joi.when("category", {
+    is: "FEED",
+    then: Joi.array().items(
+      Joi.object({
+        feedName: Joi.string().required(),
+        male: Joi.string().required(),
+        totalWeight: Joi.string().required(),
+        totalCost: Joi.string().required()
+      })
+    ).min(1).required(),
+    otherwise: Joi.forbidden()
+  }),
 phoneNumber: Joi.string().optional().allow(''),
     timestamp: Joi.string().required(),
     breederName: Joi.string().optional(),
