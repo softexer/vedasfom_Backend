@@ -8,7 +8,7 @@ var addreceviedstockdatavalidations = Joi.object({
         .valid("J", "G")
         .required(),
     feedName: Joi.string().optional().allow(''),
-
+phoneNumber: Joi.string().optional().allow(''),
     timestamp: Joi.string().required(),
     breederName: Joi.string().optional(),
     male: Joi.string().optional().allow(''),
@@ -49,6 +49,9 @@ var addsalestockdatavalidations = Joi.object({
     description: Joi.string().optional().allow(''),
     quantity: Joi.string().optional().allow(''),
     averagePerEgg: Joi.string().optional().allow(''),
+    sellerPhoneNumber: Joi.string().optional().allow(''),
+    paymentMode: Joi.string().optional().allow(''),
+    creditperson: Joi.string().optional().allow(''),
 });
 
 var updatereceviedstocksdatavalidations = Joi.object({

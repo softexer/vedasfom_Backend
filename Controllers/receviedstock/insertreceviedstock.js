@@ -62,7 +62,8 @@ try {
       timestamp: params.timestamp,
       feedName:params.feedName,
       averagePerEgg:params.averagePerEgg,
-      quantity:params.quantity
+      quantity:params.quantity,
+      phoneNumber:params.phoneNumber,
     });
 
     return res.status(200).json({

@@ -7,6 +7,10 @@ const livestockSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  phoneNumber: {
+    type: String,
+    required: false
+  },
   category: {
     type: String,
     enum: [
