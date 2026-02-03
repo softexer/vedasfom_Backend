@@ -44,12 +44,6 @@ const addreceviedstockdata = async (req, res) => {
             filedbpath = ""; // No image provided
         }
 
-        if (filedbpath) {
-            await new Promise((resolve, reject) => {
-            file.mv(filedbpath, err => err ? reject(err) : resolve());
-            });
-        }
-
         if (params.category === "FEED") {
             for (const feedItem of params.feed) {
                 await ReceviedStockData.create({
