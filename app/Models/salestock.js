@@ -100,7 +100,7 @@ const salestockSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-    creditpersons: {
+    creditperson: {
         type: String,
         default: ""
     }
