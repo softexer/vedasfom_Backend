@@ -6,6 +6,7 @@ const addsalestockdata = async (req, res) => {
     try {
 
         if (!req.body || !req.body.saledata) {
+            console.log("daeme", req.body.saledata)
             return res.status(400).json({
                 message: "saledata is missing in request"
             });
