@@ -30,103 +30,129 @@ router.get("/fetchstock", (req, res) => {
 
     const group = params.address; // req.body.group / req.params.group
 
-    ReceviedStockData.aggregate([
-        {
-            $match: { group: group }
-        },
-        {
-            $group: {
-                _id: {
-                    category: "$category",
-                    group: "$group",
-                    breederName: "$breederName",
-                    feedName: "$feedName"
-                },
+ ReceviedStockData.aggregate([
+    { $match: { group: group } },
 
-                male: {
-                    $sum: {
-                        $convert: { input: "$male", to: "int", onError: 0, onNull: 0 }
-                    }
-                },
-                female: {
-                    $sum: {
-                        $convert: { input: "$female", to: "int", onError: 0, onNull: 0 }
-                    }
-                },
-                kids: {
-                    $sum: {
-                        $convert: { input: "$kids", to: "int", onError: 0, onNull: 0 }
-                    }
-                },
-                averageWeight: {
-                    $avg: {
-                        $convert: { input: "$averageWeight", to: "double", onError: 0, onNull: 0 }
-                    }
+    {
+        $group: {
+            _id: {
+                category: "$category",
+                group: "$group",
+                breederName: "$breederName",
+                feedName: "$feedName"
+            },
+            male: {
+                $sum: {
+                    $convert: { input: "$male", to: "int", onError: 0, onNull: 0 }
+                }
+            },
+            female: {
+                $sum: {
+                    $convert: { input: "$female", to: "int", onError: 0, onNull: 0 }
+                }
+            },
+            kids: {
+                $sum: {
+                    $convert: { input: "$kids", to: "int", onError: 0, onNull: 0 }
+                }
+            },
+            averageWeight: {
+                $avg: {
+                    $convert: { input: "$averageWeight", to: "double", onError: 0, onNull: 0 }
                 }
             }
-        },
+        }
+    },
 
-        // 🔥 CREATE 1 OR 2 ROWS
-        {
-            $project: {
-                rows: {
-                    $cond: [
-                        { $gt: ["$kids", 0] },
-
-                        // 👉 IF kids > 0 → TWO ROWS
-                        [
-                            {
-                                category: "$_id.category",
-                                group: "$_id.group",
-                                male: { $toString: "$male" },
-                                female: { $toString: "$female" },
-                                feedName: "$_id.feedName",
-                                breederName: "$_id.breederName",
-                                kids: "0",
-                                averageWeight: {
-                                    $toString: { $round: ["$averageWeight", 2] }
+    {
+        $lookup: {
+            from: "salestocks",
+            let: {
+                category: "$_id.category",
+                group: "$_id.group",
+                feedName: "$_id.feedName"
+            },
+            pipeline: [
+                {
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { $eq: ["$group", "$$group"] },
+                                { $eq: ["$category", "$$category"] },
+                                {
+                                    $cond: [
+                                        { $eq: ["$$category", "FEED"] },
+                                        { $eq: ["$feedName", "$$feedName"] },
+                                        true
+                                    ]
                                 }
-                            },
-                            {
-                                category: "$_id.category",
-                                group: "$_id.group",
-                                male: "0",
-                                female: "0",
-                                 feedName: "$_id.feedName",
-                                breederName: "$_id.breederName",
-                                kids: { $toString: "$kids" },
-                                averageWeight: {
-                                    $toString: { $round: ["$averageWeight", 2] }
-                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        male: {
+                            $sum: {
+                                $convert: { input: "$male", to: "int", onError: 0, onNull: 0 }
                             }
-                        ],
-
-                        // 👉 ELSE → SINGLE NORMAL ROW
-                        [
-                            {
-                                category: "$_id.category",
-                                group: "$_id.group",
-                                male: { $toString: "$male" },
-                                female: { $toString: "$female" },
-                                kids: { $toString: "$kids" },
-                                 feedName: "$_id.feedName",
-                                breederName: "$_id.breederName",
-                                averageWeight: {
-                                    $toString: { $round: ["$averageWeight", 2] }
-                                }
+                        },
+                        female: {
+                            $sum: {
+                                $convert: { input: "$female", to: "int", onError: 0, onNull: 0 }
                             }
-                        ]
-                    ]
+                        },
+                        kids: {
+                            $sum: {
+                                $convert: { input: "$kids", to: "int", onError: 0, onNull: 0 }
+                            }
+                        }
+                    }
                 }
+            ],
+            as: "saleStock"
+        }
+    },
+
+    {
+        $addFields: {
+            saleMale: { $ifNull: [{ $arrayElemAt: ["$saleStock.male", 0] }, 0] },
+            saleFemale: { $ifNull: [{ $arrayElemAt: ["$saleStock.female", 0] }, 0] },
+            saleKids: { $ifNull: [{ $arrayElemAt: ["$saleStock.kids", 0] }, 0] }
+        }
+    },
+
+    {
+        $project: {
+              _id: 0, 
+            category: "$_id.category",
+            group: "$_id.group",
+            breederName: "$_id.breederName",
+            feedName: "$_id.feedName",
+
+            male: {
+                $toString: {
+                    $max: [{ $subtract: ["$male", "$saleMale"] }, 0]
+                }
+            },
+            female: {
+                $toString: {
+                    $max: [{ $subtract: ["$female", "$saleFemale"] }, 0]
+                }
+            },
+            kids: {
+                $toString: {
+                    $max: [{ $subtract: ["$kids", "$saleKids"] }, 0]
+                }
+            },
+
+            averageWeight: {
+                $toString: { $round: ["$averageWeight", 2] }
             }
-        },
-
-        // 🔥 FLATTEN INTO SAME RESPONSE ARRAY
-        { $unwind: "$rows" },
-        { $replaceRoot: { newRoot: "$rows" } }
-    ])
-
-
+        }
+    }
+])
 
 
         .then(result => {
