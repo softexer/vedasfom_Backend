@@ -67,6 +67,7 @@ var addsalestockdatavalidations = Joi.object({
   kids: Joi.string().optional().allow(""),
   chicks: Joi.string().optional().allow(""),
   averageWeight: Joi.string().optional().allow(""),
+  totalWeight: Joi.string().optional().allow(''),
   cost: Joi.string().optional().allow(""),
   totalCost: Joi.string().optional().allow(''),
   stand: Joi.string().optional().allow(""),
