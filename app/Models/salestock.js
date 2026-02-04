@@ -92,7 +92,7 @@ const salestockSchema = new mongoose.Schema({
     averagePerEgg: {
         type: String
     },
-    sellerPhonerNumber: {
+    sellerPhoneNumber: {
         type: String,
         default: ""
     },
