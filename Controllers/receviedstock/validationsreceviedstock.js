@@ -15,7 +15,8 @@ var addreceviedstockdatavalidations = Joi.object({
         feedName: Joi.string().required(),
         male: Joi.string().required(),
         totalWeight: Joi.string().required(),
-        totalCost: Joi.string().required()
+        totalCost: Joi.string().required(),
+          cost:Joi.string().required(),
       })
     ).min(1).required(),
     otherwise: Joi.forbidden()
@@ -80,8 +81,47 @@ var addsalestockdatavalidations = Joi.object({
   batchName: Joi.string().optional().allow("")
 });
 
+var addexpensesdatavalidations = Joi.object({
+   category: Joi.string()
+    .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG", "NATI")
+    .required(),
 
+  group: Joi.string()
+    .valid("J", "G")
+    .required(),
 
+  timestamp: Joi.string().required(),
+  feed: Joi.when("category", {
+    is: "FEED",
+    then: Joi.array().items(
+      Joi.object({
+        feedName: Joi.string().required(),
+        male: Joi.string().required(),
+        totalWeight: Joi.string().required(),
+        totalCost: Joi.string().required(),
+        cost:Joi.string().required(),
+      })
+    ).min(1).required(),
+    otherwise: Joi.forbidden()
+  }),
+  breederName: Joi.string().optional().allow(""),
+  male: Joi.string().optional().allow(""),
+  female: Joi.string().optional().allow(""),
+  kids: Joi.string().optional().allow(""),
+  chicks: Joi.string().optional().allow(""),
+  averageWeight: Joi.string().optional().allow(""),
+  totalWeight: Joi.string().optional().allow(''),
+  cost: Joi.string().optional().allow(""),
+  totalCost: Joi.string().optional().allow(''),
+  stand: Joi.string().optional().allow(""),
+  description: Joi.string().optional().allow(""),
+  quantity: Joi.string().optional().allow(""),
+  averagePerEgg: Joi.string().optional().allow(""),
+  sellerPhoneNumber: Joi.string().optional().allow(""),
+  paymentMode: Joi.string().optional().allow(""),
+  creditperson: Joi.string().optional().allow(""),
+  batchName: Joi.string().optional().allow("")
+});
 
 var updatereceviedstocksdatavalidations = Joi.object({
   ReceviedStockID: Joi.string().required(),
