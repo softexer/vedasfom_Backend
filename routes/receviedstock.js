@@ -39,7 +39,8 @@ router.get("/fetchstock", (req, res) => {
                 category: "$category",
                 group: "$group",
                 breederName: "$breederName",
-                feedName: "$feedName"
+                feedName: "$feedName",
+                cost: "$cost"
             },
             male: {
                 $sum: {
