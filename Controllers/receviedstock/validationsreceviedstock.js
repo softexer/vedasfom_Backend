@@ -57,6 +57,7 @@ var addsalestockdatavalidations = Joi.object({
         feedName: Joi.string().required(),
         male: Joi.string().required(),
         totalWeight: Joi.string().required(),
+        cost: Joi.string().required(),
         totalCost: Joi.string().required()
       })
     ).min(1).required(),
