@@ -118,10 +118,12 @@ var addexpensesdatavalidations = Joi.object({
   description: Joi.string().optional().allow(""),
   quantity: Joi.string().optional().allow(""),
   averagePerEgg: Joi.string().optional().allow(""),
-  sellerPhoneNumber: Joi.string().optional().allow(""),
+  customerPhoneNumber: Joi.string().optional().allow(""),
+  damageReason: Joi.string().optional().allow(""),
   paymentMode: Joi.string().optional().allow(""),
   creditperson: Joi.string().optional().allow(""),
-  batchName: Joi.string().optional().allow("")
+  batchName: Joi.string().optional().allow(""),
+  createdBy: Joi.string().optional().allow("")
 });
 
 var updatereceviedstocksdatavalidations = Joi.object({
@@ -148,5 +150,5 @@ var deletereceviedstocksdatavalidations = Joi.object({
 })
 module.exports = {
   addreceviedstockdatavalidations, updatereceviedstocksdatavalidations, fetchreceviedstocksdatavalidations,
-  deletereceviedstocksdatavalidations, addsalestockdatavalidations
+  deletereceviedstocksdatavalidations, addsalestockdatavalidations,addexpensesdatavalidations
 }

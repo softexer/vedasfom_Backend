@@ -1,5 +1,5 @@
 var { addexpensesdatavalidations } = require('./validationsreceviedstock');
-var ReceviedStockData = require('../../app/Models/stock');
+var ExpensesStockData = require('../../app/Models/expenses');
 var idb = require('../core/generateID');
 
 const addexpensesData = async (req, res) => {
@@ -46,8 +46,8 @@ const addexpensesData = async (req, res) => {
 
         if (params.category === "FEED") {
             for (const feedItem of params.feed) {
-                await ReceviedStockData.create({
-                    LivestockID: "stock@" + idb.GenerateIDS(5),
+                await ExpensesStockData.create({
+                    ExpensesID: "expenses@" + idb.GenerateIDS(5),
                     category: params.category,
                     group: params.group,
                     breederName: params.breederName,
@@ -65,13 +65,16 @@ const addexpensesData = async (req, res) => {
                     feedName: feedItem.feedName,
                     averagePerEgg: params.averagePerEgg,
                     quantity: params.quantity,
-                    phoneNumber: params.phoneNumber,
+                    customerPhoneNumber: params.customerPhoneNumber,
                     batchName: params.batchName,
+                    damageReason:params.damageReason,
+                    paymentMode:params.paymentMode,
+                    createdBy:params.createdBy
                 });
             }
         } else {
-            await ReceviedStockData.create({
-                LivestockID: "stock@" + idb.GenerateIDS(5),
+            await ExpensesStockData.create({
+                ExpensesID: "expenses@" + idb.GenerateIDS(5),
                 category: params.category,
                 group: params.group,
                 breederName: params.breederName,
@@ -89,8 +92,11 @@ const addexpensesData = async (req, res) => {
                 feedName: params.feedName,
                 averagePerEgg: params.averagePerEgg,
                 quantity: params.quantity,
-                phoneNumber: params.phoneNumber,
+                customerPhoneNumber: params.customerPhoneNumber,
                 batchName: params.batchName,
+                damageReason:params.damageReason,
+                paymentMode:params.paymentMode,
+                createdBy:params.createdBy
             });
         }
         return res.status(200).json({

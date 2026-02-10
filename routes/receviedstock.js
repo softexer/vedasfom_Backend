@@ -20,6 +20,9 @@ router.post("/fetchreceviedstock", (req, res, next) => {
 router.delete("/deletereceviedstock", (req, res, next) => {
     ReceviedStock.deletereceviedstock(req, res)
 })
+router.post("/addexpenses", (req, res) => {
+    ReceviedStock.addexpensesData(req, res)
+})
 router.get("/fetchstock", (req, res) => {
     const { address } = req.query;
 

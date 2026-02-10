@@ -3,6 +3,7 @@ var {updatereceviedstocksdata} = require('./updatereceviedstock');
 var {fetchreceviedstocksdata} = require('./fetchreceviedstock');
 var {deletereceviedstocksdata} = require('./deletereceviedstock');
 var {addsalestockdata}= require('./insertsalestock');
+var {addexpensesData} = require('./insertExpenses');
 var addreceviedstock = (req,res)=>{
     addreceviedstockdata(req,res)
 };
@@ -18,10 +19,14 @@ var fetchreceviedstock =(req,res)=>{
 var deletereceviedstock =(req,res)=>{
     deletereceviedstocksdata(req,res)
 }
+var addexpensesData =(req,res)=>{
+    addexpensesData(req,res)
+}
 module.exports={
     addreceviedstock,
     updatereceviedstock,
     fetchreceviedstock,
     deletereceviedstock,
-    addsalestockdata
+    addsalestockdata,
+    addexpensesData
 }

@@ -2,16 +2,20 @@ const mongoose = require("mongoose");
 
 const FarmExpenseSchema = new mongoose.Schema(
     {
-
+        ExpensesID: {
+            type: String,
+            required: true,
+            unique: true
+        },
         expenseType: {
             type: String,
-            enum: ["FEED", "DAMAGE", "MEDICINE", "EXPENSES","LABOUR", "OTHER"],
+            enum: ["FEED", "DAMAGE", "MEDICINE", "EXPENSES", "LABOUR", "OTHER"],
             required: true
         },
 
         category: {
             type: String, // GOAT, COW, FEED, HEN etc
-            required: true
+            required: false
         },
         feedname: {
             type: String,
@@ -44,7 +48,7 @@ const FarmExpenseSchema = new mongoose.Schema(
 
         totalCost: {
             type: String,
-            required:false
+            required: false
         },
 
         customerPhoneNumber: {
@@ -58,7 +62,7 @@ const FarmExpenseSchema = new mongoose.Schema(
         },
 
         timeStamp: {
-            type: String, 
+            type: String,
             required: false
         },
 
@@ -81,8 +85,12 @@ const FarmExpenseSchema = new mongoose.Schema(
             userID: String,
             userName: String
         },
+         paymentMode: {
+        type: String,
+        default: ""
+    },SSS
 
-        
+
     },
 
 
