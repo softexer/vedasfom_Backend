@@ -2,7 +2,7 @@ var { addexpensesdatavalidations } = require('./validationsreceviedstock');
 var ExpensesStockData = require('../../app/Models/expenses');
 var idb = require('../core/generateID');
 
-const addexpensesData = async (req, res) => {
+const addexpensesstockData = async (req, res) => {
     try {
 
         if (!req.body || !req.body.expensesdata) {
@@ -114,4 +114,4 @@ const addexpensesData = async (req, res) => {
     }
 };
 
-module.exports = { addexpensesData };
+module.exports = { addexpensesstockData };
