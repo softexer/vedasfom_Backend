@@ -88,7 +88,7 @@ const FarmExpenseSchema = new mongoose.Schema(
          paymentMode: {
         type: String,
         default: ""
-    },SSS
+    },
 
 
     },
