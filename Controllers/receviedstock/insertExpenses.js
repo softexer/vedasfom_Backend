@@ -94,6 +94,8 @@ const addexpensesData = async (req, res) => {
                 feedName: params.feedName,
                 averagePerEgg: params.averagePerEgg,
                 quantity: params.quantity,
+                payerName: params.payerName,
+                payerNumber: params.payerNumber,
                 customerPhoneNumber: params.customerPhoneNumber,
                 batchName: params.batchName,
                 damageReason: params.damageReason,

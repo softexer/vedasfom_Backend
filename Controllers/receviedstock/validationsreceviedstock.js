@@ -124,6 +124,8 @@ var addexpensesdatavalidations = Joi.object({
   customerPhoneNumber: Joi.string().optional().allow(""),
   damageReason: Joi.string().optional().allow(""),
   paymentMode: Joi.string().optional().allow(""),
+  payerName: Joi.string().optional().allow(""),
+  payerNumber: Joi.string().optional().allow(""),
   creditperson: Joi.string().optional().allow(""),
   batchName: Joi.string().optional().allow(""),
   createdBy: Joi.string().optional().allow("")

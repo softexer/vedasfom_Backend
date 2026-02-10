@@ -85,14 +85,20 @@ const FarmExpenseSchema = new mongoose.Schema(
             userID: String,
             userName: String
         },
-         paymentMode: {
-        type: String,
-        default: ""
-    },
+        paymentMode: {
+            type: String,
+            default: ""
+        },
+        payerName: {
+            type: String,
+            default: ""
+        },
+        payerNumber: {
 
-
-    },
-
+            type: String,
+            default: ""
+        },
+    }
 
 );
 
