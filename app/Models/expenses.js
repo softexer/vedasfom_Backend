@@ -43,7 +43,7 @@ const FarmExpenseSchema = new mongoose.Schema(
 
         cost: {
             type: String,
-            required: true
+            required: false
         },
 
         totalCost: {
