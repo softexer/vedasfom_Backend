@@ -87,7 +87,7 @@ var addexpensesdatavalidations = Joi.object({
     .valid("FEED", "DAMAGE", "MEDICINE", "EXPENSES", "LABOUR", "OTHER")
     .required(),
    category: Joi.string()
-    .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG", "NATI")
+    .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG", "NATI","OTHER")
     .required(),
 
   group: Joi.string()
