@@ -83,6 +83,9 @@ var addsalestockdatavalidations = Joi.object({
 });
 
 var addexpensesdatavalidations = Joi.object({
+  expenseType: Joi.string()
+    .valid("FEED", "DAMAGE", "MEDICINE", "EXPENSES", "LABOUR", "OTHER")
+    .required(),
    category: Joi.string()
     .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG", "NATI")
     .required(),

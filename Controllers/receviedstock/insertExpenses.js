@@ -38,7 +38,7 @@ const addexpensesData = async (req, res) => {
             filedbpath = `/images/${filename}`;
 
             await new Promise((resolve, reject) => {
-            file.mv(filemvpath, err => err ? reject(err) : resolve());
+                file.mv(filemvpath, err => err ? reject(err) : resolve());
             });
         } else {
             filedbpath = ""; // No image provided
@@ -48,6 +48,7 @@ const addexpensesData = async (req, res) => {
             for (const feedItem of params.feed) {
                 await ExpensesStockData.create({
                     ExpensesID: "expenses@" + idb.GenerateIDS(5),
+                    expenseType: params.expenseType,
                     category: params.category,
                     group: params.group,
                     breederName: params.breederName,
@@ -67,14 +68,15 @@ const addexpensesData = async (req, res) => {
                     quantity: params.quantity,
                     customerPhoneNumber: params.customerPhoneNumber,
                     batchName: params.batchName,
-                    damageReason:params.damageReason,
-                    paymentMode:params.paymentMode,
-                    createdBy:params.createdBy
+                    damageReason: params.damageReason,
+                    paymentMode: params.paymentMode,
+                    createdBy: params.createdBy
                 });
             }
         } else {
             await ExpensesStockData.create({
                 ExpensesID: "expenses@" + idb.GenerateIDS(5),
+                expenseType: params.expenseType,
                 category: params.category,
                 group: params.group,
                 breederName: params.breederName,
@@ -94,9 +96,9 @@ const addexpensesData = async (req, res) => {
                 quantity: params.quantity,
                 customerPhoneNumber: params.customerPhoneNumber,
                 batchName: params.batchName,
-                damageReason:params.damageReason,
-                paymentMode:params.paymentMode,
-                createdBy:params.createdBy
+                damageReason: params.damageReason,
+                paymentMode: params.paymentMode,
+                createdBy: params.createdBy
             });
         }
         return res.status(200).json({
