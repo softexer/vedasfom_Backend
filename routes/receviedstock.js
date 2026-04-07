@@ -186,7 +186,7 @@ router.get("/fetchstock", (req, res) => {
                         group: "$_id.group",
                         breederName: "$_id.breederName",
                         feedName: "$_id.feedName",
-                        cost: "$_id.cost",
+                        cost: "$_id.totalCost",
 
                        male: {
                     $toString: {
