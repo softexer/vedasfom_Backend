@@ -16,7 +16,7 @@ var addreceviedstockdatavalidations = Joi.object({
         male: Joi.string().required(),
         totalWeight: Joi.string().required(),
         totalCost: Joi.string().required(),
-          cost:Joi.string().required(),
+        cost: Joi.string().required(),
       })
     ).min(1).required(),
     otherwise: Joi.forbidden()
@@ -86,8 +86,8 @@ var addexpensesdatavalidations = Joi.object({
   expenseType: Joi.string()
     .valid("FEED", "DAMAGE", "MEDICINE", "EXPENSES", "LABOUR", "OTHER")
     .required(),
-   category: Joi.string()
-    .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG", "NATI","OTHER")
+  category: Joi.string()
+    .valid("HEN", "SHEEP", "COW", "GOAT", "PIG", "FEED", "EGG", "NATI", "OTHER")
     .required(),
 
   group: Joi.string()
@@ -95,6 +95,8 @@ var addexpensesdatavalidations = Joi.object({
     .required(),
 
   timestamp: Joi.string().required(),
+  feedName: Joi.string().optional().allow(''),
+
   feed: Joi.when("category", {
     is: "FEED",
     then: Joi.array().items(
@@ -103,7 +105,7 @@ var addexpensesdatavalidations = Joi.object({
         male: Joi.string().required(),
         totalWeight: Joi.string().required(),
         totalCost: Joi.string().required(),
-        cost:Joi.string().required(),
+        cost: Joi.string().required(),
       })
     ).min(1).required(),
     otherwise: Joi.forbidden()
@@ -155,5 +157,5 @@ var deletereceviedstocksdatavalidations = Joi.object({
 })
 module.exports = {
   addreceviedstockdatavalidations, updatereceviedstocksdatavalidations, fetchreceviedstocksdatavalidations,
-  deletereceviedstocksdatavalidations, addsalestockdatavalidations,addexpensesdatavalidations
+  deletereceviedstocksdatavalidations, addsalestockdatavalidations, addexpensesdatavalidations
 }
