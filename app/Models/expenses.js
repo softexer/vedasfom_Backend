@@ -21,7 +21,7 @@ const FarmExpenseSchema = new mongoose.Schema(
             type: String, // GOAT, COW, FEED, HEN etc
             required: false
         },
-        feedname: {
+        feedName: {
             type: String,
             default: ""
         },
