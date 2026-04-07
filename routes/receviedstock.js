@@ -555,63 +555,65 @@ router.get("/report", async (req, res) => {
             }
         ]);
 
-        const OtherSummary = await ExpensesModel.aggregate([
-            {
-                $match: {
-                    group: address,
-                    expenseType: "OTHER"
-                }
+       const OtherSummary = await ExpensesModel.aggregate([
+    {
+        $match: {
+            group: address,
+            expenseType: "OTHER"
+        }
+    },
+    {
+        $group: {
+            _id: {
+                category: "$category",
+                feedName: "$feedName"
             },
-            {
-                $group: {
-                    _id: "$category",
 
-                    // Convert string to number
-                    male: {
-                        $sum: {
-                            $convert: {
-                                input: "$male",
-                                to: "int",
-                                onError: 0,
-                                onNull: 0
-                            }
-                        }
-                    },
-
-                    kids: {
-                        $sum: {
-                            $convert: {
-                                input: "$kids",
-                                to: "int",
-                                onError: 0,
-                                onNull: 0
-                            }
-                        }
-                    },
-
-                    Amount: {
-                        $sum: {
-                            $convert: {
-                                input: "$totalCost",
-                                to: "double",
-                                onError: 0,
-                                onNull: 0
-                            }
-                        }
+            male: {
+                $sum: {
+                    $convert: {
+                        input: "$male",
+                        to: "int",
+                        onError: 0,
+                        onNull: 0
                     }
                 }
             },
-            {
-                $project: {
-                    _id: 0,
-                    Category: "$_id",
-                    male: { $toString: "$male" },
-                    kids: { $toString: "$kids" },
-                    Amount: { $toString: "$Amount" }
+
+            kids: {
+                $sum: {
+                    $convert: {
+                        input: "$kids",
+                        to: "int",
+                        onError: 0,
+                        onNull: 0
+                    }
+                }
+            },
+
+            Amount: {
+                $sum: {
+                    $convert: {
+                        input: "$totalCost",
+                        to: "double",
+                        onError: 0,
+                        onNull: 0
+                    }
                 }
             }
-        ]);
-
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            Category: "$_id.category",
+            FeedName: "$_id.feedName",
+            male: { $toString: "$male" },
+            kids: { $toString: "$kids" },
+            Amount: { $toString: "$Amount" }
+        }
+    }
+]);
         const overall = await ExpensesModel.aggregate([
             {
                 $match: { group: address }
