@@ -1,6 +1,7 @@
 var { addexpensesdatavalidations } = require('./validationsreceviedstock');
 var ExpensesStockData = require('../../app/Models/expenses');
 var idb = require('../core/generateID');
+var LivestockData = require('../../app/Models/stock');
 
 const addexpensesstockData = async (req, res) => {
     try {
@@ -72,6 +73,13 @@ const addexpensesstockData = async (req, res) => {
                     paymentMode: params.paymentMode,
                     createdBy: params.createdBy
                 });
+
+                // ... existing code ...
+
+                await LivestockData.updateOne(
+                    { feedname: feedItem.feedName },
+                    { $inc: { qty: -feedItem.quantity } }
+                );
             }
         } else {
             await ExpensesStockData.create({

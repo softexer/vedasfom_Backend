@@ -102,7 +102,16 @@ const FarmExpenseSchema = new mongoose.Schema(
             type: String,
             default: ""
         },
-    }
+averagePerEgg:{
+type:String
+
+    },
+      batchName:{
+    type:String,
+    default:""
+  },
+
+}
 
 );
 
