@@ -33,131 +33,207 @@ router.get("/fetchstock", (req, res) => {
 
     const group = params.address; // req.body.group / req.params.group
 
- ReceviedStockData.aggregate([
-    { $match: { group: group } },
+    ReceviedStockData.aggregate([
+        { $match: { group: group } },
 
-    {
-        $group: {
-            _id: {
-                category: "$category",
-                group: "$group",
-                breederName: "$breederName",
-                feedName: "$feedName",
-                cost: "$cost"
-            },
-            male: {
-                $sum: {
-                    $convert: { input: "$male", to: "int", onError: 0, onNull: 0 }
-                }
-            },
-            female: {
-                $sum: {
-                    $convert: { input: "$female", to: "int", onError: 0, onNull: 0 }
-                }
-            },
-            kids: {
-                $sum: {
-                    $convert: { input: "$kids", to: "int", onError: 0, onNull: 0 }
-                }
-            },
-            averageWeight: {
-                $avg: {
-                    $convert: { input: "$averageWeight", to: "double", onError: 0, onNull: 0 }
-                }
-            }
-        }
-    },
-
-    {
-        $lookup: {
-            from: "salestocks",
-            let: {
-                category: "$_id.category",
-                group: "$_id.group",
-                feedName: "$_id.feedName"
-            },
-            pipeline: [
-                {
-                    $match: {
-                        $expr: {
-                            $and: [
-                                { $eq: ["$group", "$$group"] },
-                                { $eq: ["$category", "$$category"] },
-                                {
-                                    $cond: [
-                                        { $eq: ["$$category", "FEED"] },
-                                        { $eq: ["$feedName", "$$feedName"] },
-                                        true
-                                    ]
-                                }
-                            ]
-                        }
+        {
+            $group: {
+                _id: {
+                    category: "$category",
+                    group: "$group",
+                    breederName: "$breederName",
+                    feedName: "$feedName",
+                    cost: "$cost"
+                },
+                male: {
+                    $sum: {
+                        $convert: { input: "$male", to: "int", onError: 0, onNull: 0 }
                     }
                 },
-                {
-                    $group: {
-                        _id: null,
-                        male: {
-                            $sum: {
-                                $convert: { input: "$male", to: "int", onError: 0, onNull: 0 }
+                female: {
+                    $sum: {
+                        $convert: { input: "$female", to: "int", onError: 0, onNull: 0 }
+                    }
+                },
+                kids: {
+                    $sum: {
+                        $convert: { input: "$kids", to: "int", onError: 0, onNull: 0 }
+                    }
+                },
+                averageWeight: {
+                    $avg: {
+                        $convert: { input: "$averageWeight", to: "double", onError: 0, onNull: 0 }
+                    }
+                }
+            }
+        },
+
+        {
+            $lookup: {
+                from: "salestocks",
+                let: {
+                    category: "$_id.category",
+                    group: "$_id.group",
+                    feedName: "$_id.feedName"
+                },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: [{ $toUpper: "$group" }, { $toUpper: "$$group" }] },
+                                    { $eq: [{ $toUpper: "$category" }, { $toUpper: "$$category" }] },
+                                    {
+                                        $or: [
+                                            { $ne: [{ $toUpper: "$$category" }, "FEED"] },
+                                            { $eq: [{ $toUpper: "$feedName" }, { $toUpper: "$$feedName" }] }
+                                        ]
+                                    }
+                                ]
                             }
-                        },
-                        female: {
-                            $sum: {
-                                $convert: { input: "$female", to: "int", onError: 0, onNull: 0 }
-                            }
-                        },
-                        kids: {
-                            $sum: {
-                                $convert: { input: "$kids", to: "int", onError: 0, onNull: 0 }
+                        }
+                    },
+
+                    {
+                        $group: {
+                            _id: null,
+                            male: {
+                                $sum: {
+                                    $convert: { input: "$male", to: "int", onError: 0, onNull: 0 }
+                                }
+                            },
+                            female: {
+                                $sum: {
+                                    $convert: { input: "$female", to: "int", onError: 0, onNull: 0 }
+                                }
+                            },
+                            kids: {
+                                $sum: {
+                                    $convert: { input: "$kids", to: "int", onError: 0, onNull: 0 }
+                                }
                             }
                         }
                     }
-                }
-            ],
-            as: "saleStock"
-        }
-    },
+                ],
+                as: "saleStock"
+            }
+        },
+        {
+            $lookup: {
+                from: "farmexpenses",
+                let: {
+                    category: "$_id.category",
+                    group: "$_id.group",
+                    feedName: "$_id.feedName"
+                },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: [{ $toUpper: "$group" }, { $toUpper: "$$group" }] },
+                                    { $eq: [{ $toUpper: "$category" }, { $toUpper: "$$category" }] },
+                                    {
+                                        $or: [
+                                            { $ne: [{ $toUpper: "$$category" }, "FEED"] },
+                                            { $eq: [{ $toUpper: "$feedName" }, { $toUpper: "$$feedName" }] }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                    ,
+                    {
+                        $group: {
+                            _id: null,
+                            male: {
+                                $sum: {
+                                    $convert: { input: "$male", to: "int", onError: 0, onNull: 0 }
+                                }
+                            },
+                            female: {
+                                $sum: {
+                                    $convert: { input: "$female", to: "int", onError: 0, onNull: 0 }
+                                }
+                            },
+                            kids: {
+                                $sum: {
+                                    $convert: { input: "$kids", to: "int", onError: 0, onNull: 0 }
+                                }
+                            }
+                        }
+                    }
+                ],
+                as: "farmExpense"
+            }
+        },
+        {
+            $addFields: {
+                saleMale: { $ifNull: [{ $arrayElemAt: ["$saleStock.male", 0] }, 0] },
+                saleFemale: { $ifNull: [{ $arrayElemAt: ["$saleStock.female", 0] }, 0] },
+                saleKids: { $ifNull: [{ $arrayElemAt: ["$saleStock.kids", 0] }, 0] },
+                expMale: { $ifNull: [{ $arrayElemAt: ["$farmExpense.male", 0] }, 0] },
+                expFemale: { $ifNull: [{ $arrayElemAt: ["$farmExpense.female", 0] }, 0] },
+                expKids: { $ifNull: [{ $arrayElemAt: ["$farmExpense.kids", 0] }, 0] }
+            }
+        },
 
-    {
-        $addFields: {
-            saleMale: { $ifNull: [{ $arrayElemAt: ["$saleStock.male", 0] }, 0] },
-            saleFemale: { $ifNull: [{ $arrayElemAt: ["$saleStock.female", 0] }, 0] },
-            saleKids: { $ifNull: [{ $arrayElemAt: ["$saleStock.kids", 0] }, 0] }
-        }
-    },
+                {
+                    $project: {
+                        _id: 0,
+                        category: "$_id.category",
+                        group: "$_id.group",
+                        breederName: "$_id.breederName",
+                        feedName: "$_id.feedName",
+                        cost: "$_id.cost",
 
-    {
-        $project: {
-              _id: 0, 
-            category: "$_id.category",
-            group: "$_id.group",
-            breederName: "$_id.breederName",
-            feedName: "$_id.feedName",
-            cost: "$_id.cost",
+                       male: {
+                    $toString: {
+                        $max: [
+                            {
+                                $subtract: [
+                                    { $subtract: ["$male", "$saleMale"] },
+                                    "$expMale"
+                                ]
+                            },
+                            0
+                        ]
+                    }
+                },
+                female: {
+                    $toString: {
+                        $max: [
+                            {
+                                $subtract: [
+                                    { $subtract: ["$female", "$saleFemale"] },
+                                    "$expFemale"
+                                ]
+                            },
+                            0
+                        ]
+                    }
+                },
+                kids: {
+                    $toString: {
+                        $max: [
+                            {
+                                $subtract: [
+                                    { $subtract: ["$kids", "$saleKids"] },
+                                    "$expKids"
+                                ]
+                            },
+                            0
+                        ]
+                    }
+                },
 
-            male: {
-                $toString: {
-                    $max: [{ $subtract: ["$male", "$saleMale"] }, 0]
+                averageWeight: {
+                    $toString: { $round: ["$averageWeight", 2] }
                 }
-            },
-            female: {
-                $toString: {
-                    $max: [{ $subtract: ["$female", "$saleFemale"] }, 0]
-                }
-            },
-            kids: {
-                $toString: {
-                    $max: [{ $subtract: ["$kids", "$saleKids"] }, 0]
-                }
-            },
-
-            averageWeight: {
-                $toString: { $round: ["$averageWeight", 2] }
             }
         }
-    }
-])
+    ])
 
 
         .then(result => {
@@ -351,7 +427,7 @@ router.get("/fetchstock-download", async (req, res) => {
                                     male: "$male",
                                     female: "$female",
                                     kids: "$kids",
-                                      feedName: "$_id.feedName",
+                                    feedName: "$_id.feedName",
                                     breederName: "$_id.breederName",
                                     averageWeight: { $round: ["$averageWeight", 2] }
                                 }

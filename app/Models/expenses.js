@@ -12,7 +12,11 @@ const FarmExpenseSchema = new mongoose.Schema(
             enum: ["FEED", "DAMAGE", "MEDICINE", "EXPENSES", "LABOUR", "OTHER"],
             required: true
         },
-
+        group: {
+            type: String, // J or G (or any future group)
+            enum: ["J", "G"],
+            required: true
+        },
         category: {
             type: String, // GOAT, COW, FEED, HEN etc
             required: false
