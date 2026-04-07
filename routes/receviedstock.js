@@ -448,6 +448,7 @@ const damageSummary = await ExpensesModel.aggregate([
     {
         $group: {
             _id: "$category",
+              feedName: { $first: "$feedName" }, 
 
             // Convert string to number
             male: {
@@ -488,6 +489,7 @@ const damageSummary = await ExpensesModel.aggregate([
         $project: {
             _id: 0,
             Category: "$_id",
+             FeedName: "$feedName",
             male: 1,
             kids: 1,
             Amount: 1
@@ -505,7 +507,7 @@ const FeedSummary = await ExpensesModel.aggregate([
     {
         $group: {
             _id: "$category",
-
+   feedName: { $first: "$feedName" }, 
             // Convert string to number
             male: {
                 $sum: {
@@ -545,6 +547,7 @@ const FeedSummary = await ExpensesModel.aggregate([
         $project: {
             _id: 0,
             Category: "$_id",
+             FeedName: "$feedName",
             male: 1,
             kids: 1,
             Amount: 1
