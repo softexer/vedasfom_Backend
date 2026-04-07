@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var ReceviedStock = require('../Controllers/receviedstock/receviedstock');
 var ReceviedStockData = require('../app/Models/stock');
+var ExpensesModel = require('../app/Models/expenses')
 var fileupload = require('express-fileupload');
 router.use(fileupload({ limits: { fileSize: 50 * 1024 * 1024 } }));
 router.post("/addreceviedstock", (req, res) => {
@@ -43,7 +44,8 @@ router.get("/fetchstock", (req, res) => {
                     group: "$group",
                     breederName: "$breederName",
                     feedName: "$feedName",
-                    cost: "$totalCost"
+                    cost: "$cost",
+                    totalCost: "$totalCost"
                 },
                 male: {
                     $sum: {
@@ -179,16 +181,17 @@ router.get("/fetchstock", (req, res) => {
             }
         },
 
-                {
-                    $project: {
-                        _id: 0,
-                        category: "$_id.category",
-                        group: "$_id.group",
-                        breederName: "$_id.breederName",
-                        feedName: "$_id.feedName",
-                        cost: "$_id.totalCost",
+        {
+            $project: {
+                _id: 0,
+                category: "$_id.category",
+                group: "$_id.group",
+                breederName: "$_id.breederName",
+                feedName: "$_id.feedName",
+                cost: "$_id.cost",
+                totalcost: "$_id.totalCost",
 
-                       male: {
+                male: {
                     $toString: {
                         $max: [
                             {
@@ -245,6 +248,7 @@ router.get("/fetchstock", (req, res) => {
         });
 })
 var stcokData = require('../app/Models/stock');
+var SalesModel = require('../app/Models/salestock');
 const ExcelJS = require("exceljs");
 function formatDateFromTimestamp(ts) {
     if (!ts) return "N/A";
@@ -349,6 +353,387 @@ router.get("/stockdownload", async (req, res) => {
         if (!res.headersSent) {
             res.status(500).json({ error: err.message });
         }
+    }
+});
+
+
+
+router.get("/report", async (req, res) => {
+    try {
+        const { address } = req.query;
+
+        const records = await stcokData
+            .find({ group: address })
+            .lean()
+            .exec();
+
+        if (!records.length) {
+            return res.json({ response: 0, message: "No data found" });
+        }
+
+        // 1️⃣ COST (from LivestockModel)
+        const costData = await ReceviedStockData.aggregate([
+            { $match: { group: address } },
+            {
+                $group: {
+                    _id: "$category",
+                    totalCost: {
+                        $sum: {
+                            $convert: {
+                                input: "$totalCost",
+                                to: "double",
+                                onError: 0,
+                                onNull: 0
+                            }
+                        }
+                    }
+                }
+            }
+        ]);
+
+        // 2️⃣ SELL COST (from SalesModel)
+        const sellData = await SalesModel.aggregate([
+            { $match: { group: address } },
+            {
+                $group: {
+                    _id: "$category",
+                    SellCost: {
+                        $sum: {
+                            $convert: {
+                                input: "$totalCost",
+                                to: "double",
+                                onError: 0,
+                                onNull: 0
+                            }
+                        }
+                    }
+                }
+            }
+        ]);
+
+        // 3️⃣ MERGE BOTH RESULTS BY CATEGORY
+        const map = new Map();
+        console.log("cost", sellData)
+        // Add cost from LivestockModel
+        costData.forEach(item => {
+            map.set(item._id, {
+                Category: item._id,
+                totalCost: item.totalCost.toString(),
+                SellCost: "0"
+            });
+        });
+
+        // Add SellCost from SalesModel
+        sellData.forEach(item => {
+            if (map.has(item._id)) {
+                map.get(item._id).SellCost = item.SellCost;
+            } else {
+                // category exists only in sales
+                map.set(item._id, {
+                    Category: item._id,
+                    Cost: "0",
+                    SellCost: item.SellCost.toString()
+                });
+            }
+        });
+
+        const finalOutput = Array.from(map.values());
+const damageSummary = await ExpensesModel.aggregate([
+    {
+        $match: {
+            group: address,
+            expenseType: "DAMAGE"
+        }
+    },
+    {
+        $group: {
+            _id: "$category",
+
+            // Convert string to number
+            male: {
+                $sum: {
+                    $convert: {
+                        input: "$male",
+                        to: "int",
+                        onError: 0,
+                        onNull: 0
+                    }
+                }
+            },
+
+            kids: {
+                $sum: {
+                    $convert: {
+                        input: "$kids",
+                        to: "int",
+                        onError: 0,
+                        onNull: 0
+                    }
+                }
+            },
+
+            Amount: {
+                $sum: {
+                    $convert: {
+                        input: "$totalCost",
+                        to: "double",
+                        onError: 0,
+                        onNull: 0
+                    }
+                }
+            }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            Category: "$_id",
+            male: 1,
+            kids: 1,
+            Amount: 1
+        }
+    }
+]);
+
+const FeedSummary = await ExpensesModel.aggregate([
+    {
+        $match: {
+            group: address,
+            expenseType: "FEED"
+        }
+    },
+    {
+        $group: {
+            _id: "$category",
+
+            // Convert string to number
+            male: {
+                $sum: {
+                    $convert: {
+                        input: "$male",
+                        to: "int",
+                        onError: 0,
+                        onNull: 0
+                    }
+                }
+            },
+
+            kids: {
+                $sum: {
+                    $convert: {
+                        input: "$kids",
+                        to: "int",
+                        onError: 0,
+                        onNull: 0
+                    }
+                }
+            },
+
+            Amount: {
+                $sum: {
+                    $convert: {
+                        input: "$totalCost",
+                        to: "double",
+                        onError: 0,
+                        onNull: 0
+                    }
+                }
+            }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            Category: "$_id",
+            male: 1,
+            kids: 1,
+            Amount: 1
+        }
+    }
+]);
+
+const OtherSummary = await ExpensesModel.aggregate([
+    {
+        $match: {
+            group: address,
+            expenseType: "OTHER"
+        }
+    },
+    {
+        $group: {
+            _id: "$category",
+
+            // Convert string to number
+            male: {
+                $sum: {
+                    $convert: {
+                        input: "$male",
+                        to: "int",
+                        onError: 0,
+                        onNull: 0
+                    }
+                }
+            },
+
+            kids: {
+                $sum: {
+                    $convert: {
+                        input: "$kids",
+                        to: "int",
+                        onError: 0,
+                        onNull: 0
+                    }
+                }
+            },
+
+            Amount: {
+                $sum: {
+                    $convert: {
+                        input: "$totalCost",
+                        to: "double",
+                        onError: 0,
+                        onNull: 0
+                    }
+                }
+            }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            Category: "$_id",
+            male: 1,
+            kids: 1,
+            Amount: 1
+        }
+    }
+]);
+
+const overall = await ExpensesModel.aggregate([
+    { 
+        $match: { group: address }
+    },
+
+    // total investment
+    {
+        $group: {
+            _id: null,
+            TotalInvestment: {
+                $sum: {
+                    $convert: {
+                        input: "$totalCost",
+                        to: "double",
+                        onError: 0,
+                        onNull: 0
+                    }
+                }
+            }
+        }
+    },
+
+    // lookup sales
+    {
+        $lookup: {
+            from: "salestocks",
+            pipeline: [
+                {
+                    $group: {
+                        _id: null,
+                        TotalSales: {
+                            $sum: {
+                                $convert: {
+                                    input: "$totalCost",
+                                    to: "double",
+                                    onError: 0,
+                                    onNull: 0
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            as: "salesData"
+        }
+    },
+
+     {
+        $lookup: {
+            from: "livestocks",
+            pipeline: [
+                {
+                    $group: {
+                        _id: null,
+                        TotalinvestData: {
+                            $sum: {
+                                $convert: {
+                                    input: "$totalCost",
+                                    to: "double",
+                                    onError: 0,
+                                    onNull: 0
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            as: "livestocksData"
+        }
+    },
+
+    // extract sales amount
+    {
+        $addFields: {
+            TotalSales: { 
+                $ifNull: [
+                    { $arrayElemAt: ["$salesData.TotalSales", 0] },
+                    0
+                ]
+            }
+        }
+    },
+    
+     {
+        $addFields: {
+            TotalinvestData: { 
+                $ifNull: [
+                    { $arrayElemAt: ["$livestocksData.TotalinvestData", 0] },
+                    0
+                ]
+            }
+        }
+    },
+  {
+        $addFields: {
+            TotalInvestment: { $sum: ["$TotalInvestment", "$TotalinvestData"] }
+        }
+    },
+    // Net Profit = Total Sales - Total Investment
+    {
+        $addFields: {
+            NetProfit: { $subtract: ["$TotalSales", "$TotalInvestment"] }
+        }
+    },
+
+    {
+        $project: {
+            _id: 0,
+            TotalInvestment: 1,
+            TotalSales: 1,
+            NetProfit: 1
+        }
+    }
+]);
+        return res.json({ response: 3, message: "Total stock data fetch successfully", TotalInvestment: finalOutput, DamageSummary: damageSummary, FeedSummary: FeedSummary, OtherSummary: OtherSummary,OverallProfitLoss: overall
+})
+
+
+
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: err.message
+        });
     }
 });
 
