@@ -103,6 +103,10 @@ const salestockSchema = new mongoose.Schema({
     creditperson: {
         type: String,
         default: ""
+    },
+      creditpersonphoneNumber: {
+        type: String,
+        default: ""
     }
 });
 
