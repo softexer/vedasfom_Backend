@@ -91,6 +91,7 @@ const addexpensesstockData = async (req, res) => {
                 male: params.male,
                 female: params.female,
                 kids: params.kids,
+                chicks: params.chicks,
                 averageWeight: params.averageWeight,
                 totalWeight: params.totalWeight,
                 cost: params.cost,

@@ -40,11 +40,18 @@ const FarmExpenseSchema = new mongoose.Schema(
             type: String,
             default: "0"
         },
+        female:{
+            type: String,
+            default: "0"
+        },
         kids: {
             type: String,
             default: "0"
         },
-
+chicks:{
+    type: String,
+    default: "0"
+},
         cost: {
             type: String,
             required: false
