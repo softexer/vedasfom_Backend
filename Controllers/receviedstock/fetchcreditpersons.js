@@ -49,6 +49,7 @@ const summary = await SalesStock.aggregate([
         $project: {
             _id: 0,
             creditpersonName: "$_id.creditperson",
+            previousPaid:"0",
             category: "$_id.category",
             amount: { $toString: "$amount" }
         }
