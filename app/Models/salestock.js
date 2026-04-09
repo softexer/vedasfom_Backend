@@ -21,6 +21,9 @@ const salestockSchema = new mongoose.Schema({
         ],
         required: true
     },
+    feedName: {
+        type: String
+    },
     chicks: {
         type: String,
         default: "0"
@@ -104,7 +107,7 @@ const salestockSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-      creditpersonphoneNumber: {
+    creditpersonphoneNumber: {
         type: String,
         default: ""
     }
