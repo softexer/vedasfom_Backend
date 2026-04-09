@@ -74,7 +74,7 @@ const addsalestockdata = async (req, res) => {
                 });
             }
 
-        }
+        }else{
                 await SaleStockData.create({
                     SalestockID: "sale@" + idb.GenerateIDS(5),
                     category: params.category,
@@ -98,7 +98,7 @@ const addsalestockdata = async (req, res) => {
                     paymentMode: params.paymentMode,
                     creditperson: params.creditperson
                 });
-
+            }
                 return res.status(200).json({
                     response: 3,
                     message: "Sale data inserted successfully"
