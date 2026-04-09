@@ -8,7 +8,8 @@ const CreditPersonSchema = new mongoose.Schema({
 
     creditpersonphoneNumber: {
         type: String,
-        required: false
+        required: false,
+        default:""
     },
     group: { type: String },
     credits: [
@@ -17,8 +18,8 @@ const CreditPersonSchema = new mongoose.Schema({
                 type: String,
                 required: true
             },
-            amount: {
-                type: Number,
+            totalCost: {
+                type: String,
                 required: true,
                 default: "0"
             }

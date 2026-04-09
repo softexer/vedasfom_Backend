@@ -15,18 +15,31 @@ router.post("/insertcreditamount", async (req, res) => {
         if (!creditperson || creditperson.trim() === "") {
             return res.status(400).json({ message: "creditperson is required" });
         }
+        const findperson = await collectCredit.findOne({ creditperson, group });
+        if (findperson) {
+            findperson.credits.push({ category, totalCost });
+            await findperson.save();
+            return res.status(200).json({
+                response: "3",
+                message: "Credit person entry updated successfully",
+                data: findperson
+            });
+        }
 
         const newEntry = new collectCredit({
             creditperson,
-            category,
-            totalCost,
+            credits: [{
+                category,
+                totalCost,
+            }],
+
             group
         });
 
         await newEntry.save();
 
         res.status(200).json({
-            response:"3",
+            response: "3",
             message: "Credit person entry added successfully",
             data: newEntry
         });
