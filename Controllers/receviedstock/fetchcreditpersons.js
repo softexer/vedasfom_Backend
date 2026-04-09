@@ -4,9 +4,9 @@ const SalesStock = require('../../app/Models/salestock'); // Adjust path as need
 const router = express.Router();
 
 // GET API to fetch credit persons from salesstock
-router.post('/fetchcreditpersons', async (req, res) => {
+router.get('/fetchcreditpersons', async (req, res) => {
     try {
-        const { creditPersonName } = req.body;
+        const { creditPersonName } = req.query;
 
         if (!creditPersonName) {
             return res.status(400).json({
@@ -16,35 +16,43 @@ router.post('/fetchcreditpersons', async (req, res) => {
         }
 
         // Fetch matching records from salesstock
-        const summary = await SalesStock.aggregate([
-            {
-                $match: {
-                    creditperson: { $regex: creditPersonName, $options: "i" }
-                }
+const summary = await SalesStock.aggregate([
+    {
+        $match: {
+            creditperson: { 
+                $exists: true,
+                $ne: "",
+                $ne: null
+            }
+        }
+    },
+    {
+        $group: {
+            _id: {
+                creditperson: "$creditperson",
+                category: "$category"
             },
-            {
-                $group: {
-                    _id: "$category",
-                    amount: {
-                        $sum: {
-                            $convert: {
-                                input: "$totalCost", // change to your amount field
-                                to: "double",
-                                onError: 0,
-                                onNull: 0
-                            }
-                        }
+            amount: {
+                $sum: {
+                    $convert: {
+                        input: "$totalCost",
+                        to: "double",
+                        onError: 0,
+                        onNull: 0
                     }
                 }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    category: "$_id",
-                    amount: { $toString: "$amount" }
-                }
             }
-        ]);
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            creditpersonName: "$_id.creditperson",
+            category: "$_id.category",
+            amount: { $toString: "$amount" }
+        }
+    }
+]);
         if (summary.length === 0) {
             return res.status(404).json({
                 success: false,

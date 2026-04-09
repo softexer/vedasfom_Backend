@@ -45,39 +45,69 @@ const addsalestockdata = async (req, res) => {
         });
 
         // INSERT DATA
-        await SaleStockData.create({
-            SalestockID: "sale@" + idb.GenerateIDS(5),
-            category: params.category,
-            group: params.group,
-            breederName: params.breederName,
-            male: params.male,
-            female: params.female,
-            kids: params.kids,
-            averageWeight: params.averageWeight,
-            totalWeight: params.totalWeight,
-            cost: params.cost,
-            totalCost: params.totalCost,
-            stand: params.stand,
-            description: params.description,
-            image: filedbpath,
-            timestamp: params.timestamp,
-            feedName: params.feedName,
-            averagePerEgg: params.averagePerEgg,
-            quantity: params.quantity,
-            sellerPhoneNumber: params.sellerPhoneNumber,
-            paymentMode: params.paymentMode,
-            creditperson: params.creditperson
-        });
 
-        return res.status(200).json({
-            response: 3,
-            message: "Sale data inserted successfully"
-        });
+        if (params.category === "FEED") {
 
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Internal server error" });
-    }
-};
+            for (const feedItem of params.feed) {
+                await SaleStockData.create({
+                    SalestockID: "sale@" + idb.GenerateIDS(5),
+                    category: params.category,
+                    group: params.group,
+                    breederName: params.breederName,
+                    male: feedItem.male,
+                    female: feedItem.female,
+                    kids: feedItem.kids,
+                    averageWeight: feedItem.averageWeight,
+                    totalWeight: feedItem.totalWeight,
+                    cost: feedItem.cost,
+                    totalCost: params.totalCost,
+                    stand: params.stand,
+                    description: params.description,
+                    image: filedbpath,
+                    timestamp: params.timestamp,
+                    feedName: feedItem.feedName,
+                    averagePerEgg: params.averagePerEgg,
+                    quantity: params.quantity,
+                    sellerPhoneNumber: params.sellerPhoneNumber,
+                    paymentMode: params.paymentMode,
+                    creditperson: params.creditperson
+                });
+            }
 
-module.exports = { addsalestockdata };
+        }
+                await SaleStockData.create({
+                    SalestockID: "sale@" + idb.GenerateIDS(5),
+                    category: params.category,
+                    group: params.group,
+                    breederName: params.breederName,
+                    male: params.male,
+                    female: params.female,
+                    kids: params.kids,
+                    averageWeight: params.averageWeight,
+                    totalWeight: params.totalWeight,
+                    cost: params.cost,
+                    totalCost: params.totalCost,
+                    stand: params.stand,
+                    description: params.description,
+                    image: filedbpath,
+                    timestamp: params.timestamp,
+                    feedName: params.feedName,
+                    averagePerEgg: params.averagePerEgg,
+                    quantity: params.quantity,
+                    sellerPhoneNumber: params.sellerPhoneNumber,
+                    paymentMode: params.paymentMode,
+                    creditperson: params.creditperson
+                });
+
+                return res.status(200).json({
+                    response: 3,
+                    message: "Sale data inserted successfully"
+                });
+
+            } catch (error) {
+                console.error(error);
+                return res.status(500).json({ message: "Internal server error" });
+            }
+        };
+
+        module.exports = { addsalestockdata };
