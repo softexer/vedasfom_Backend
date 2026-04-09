@@ -521,14 +521,18 @@ router.get("/report", async (req, res) => {
             {
                 $match: {
                     group: address,
-                    expenseType: "FEED"
+                    expenseType: "FEED",
+                    feedName: { $exists: true, $ne: "" }
                 }
             },
             {
                 $group: {
-                    _id: "$category",
+                   _id: {
+                category: "$category",
+                feedName: "$feedName"   // feedName MUST be inside _id
+            },
 
-                    feedName: { $first: "$feedName" },
+                  //  feedName: { $first: "$feedName" },
                     // Convert string to number
                     male: {
                         $sum: {
@@ -567,8 +571,8 @@ router.get("/report", async (req, res) => {
             {
                 $project: {
                     _id: 0,
-                    Category: "$_id",
-                    FeedName: "$feedName",
+                   Category: "$_id.category",
+            FeedName: "$_id.feedName",
                     male: { $toString: "$male" },
                     kids: { $toString: "$kids" },
                     Amount: { $toString: "$Amount" }

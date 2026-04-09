@@ -21,9 +21,8 @@ const summary = await SalesStock.aggregate([
         $match: {
             group: address,
             creditperson: { 
-                $exists: true,
                 $ne: "",
-                $ne: null
+               
             }
         }
     },
