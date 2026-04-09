@@ -22,14 +22,13 @@ const CreditPersonSchema = new mongoose.Schema({
                 type: String,
                 required: true,
                 default: "0"
+            },
+            date:{
+                type: Date,
+                default: Date.now
             }
         }
     ],
-
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
 });
 
 module.exports = mongoose.model("CreditPerson", CreditPersonSchema);
