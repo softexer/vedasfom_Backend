@@ -6,9 +6,9 @@ const router = express.Router();
 // GET API to fetch credit persons from salesstock
 router.get('/fetchcreditpersons', async (req, res) => {
     try {
-        const { creditPersonName } = req.query;
+        const { address } = req.query;
 
-        if (!creditPersonName) {
+        if (!address) {
             return res.status(400).json({
                 success: false,
                 message: 'Credit person name is required'
@@ -19,6 +19,7 @@ router.get('/fetchcreditpersons', async (req, res) => {
 const summary = await SalesStock.aggregate([
     {
         $match: {
+            group: address,
             creditperson: { 
                 $exists: true,
                 $ne: "",
