@@ -7,8 +7,7 @@ router.post("/insertcreditamount", async (req, res) => {
     try {
         const {
             creditperson,
-            category,
-            totalCost,
+            items,
             group
         } = req.body;
 
@@ -17,8 +16,16 @@ router.post("/insertcreditamount", async (req, res) => {
         }
         const findperson = await collectCredit.findOne({ creditperson, group });
         if (findperson) {
-            findperson.credits.push({ category, totalCost });
+
+            items.forEach(item => {
+                findperson.credits.push({
+                    category: item.category,
+                    totalCost: item.totalCost
+                });
+            });
+
             await findperson.save();
+
             return res.status(200).json({
                 response: "3",
                 message: "Credit person entry updated successfully",
@@ -28,16 +35,14 @@ router.post("/insertcreditamount", async (req, res) => {
 
         const newEntry = new collectCredit({
             creditperson,
-            credits: [{
-                category,
-                totalCost,
-            }],
-
-            group
+            group,
+            credits: items.map(item => ({
+                category: item.category,
+                totalCost: item.totalCost
+            }))
         });
 
         await newEntry.save();
-
         res.status(200).json({
             response: "3",
             message: "Credit person entry added successfully",
