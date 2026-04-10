@@ -16,14 +16,11 @@ router.get('/fetchcreditpersons', async (req, res) => {
         }
 
         // Fetch matching records from salesstock
-const summary = await SalesStock.aggregate([
+      const summary = await SalesStock.aggregate([
     {
         $match: {
             group: address,
-            creditperson: { 
-                $ne: "",
-               
-            }
+            creditperson: { $ne: "" }
         }
     },
     {
@@ -45,12 +42,46 @@ const summary = await SalesStock.aggregate([
         }
     },
     {
+        $lookup: {
+            from: "creditpeople", 
+            localField: "_id.creditperson",
+            foreignField: "creditperson",
+            as: "creditData"
+        }
+    },
+    {
+        $addFields: {
+            previousAmount: {
+                $sum: {
+                    $map: {
+                        input: {
+                            $filter: {
+                                input: { $arrayElemAt: ["$creditData.credits", 0] },
+                                as: "c",
+                                cond: { $eq: ["$$c.category", "$_id.category"] }
+                            }
+                        },
+                        as: "item",
+                        in: {
+                            $convert: {
+                                input: "$$item.totalCost",
+                                to: "double",
+                                onError: 0,
+                                onNull: 0
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    {
         $project: {
             _id: 0,
             creditpersonName: "$_id.creditperson",
-            previousPaid:"0",
             category: "$_id.category",
-            amount: { $toString: "$amount" }
+            amount: { $toString: "$amount" },
+            previousAmount: { $toString: "$previousAmount" }
         }
     }
 ]);
