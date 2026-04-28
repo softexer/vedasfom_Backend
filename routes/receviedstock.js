@@ -786,11 +786,11 @@ router.get("/report", async (req, res) => {
   {
     $project: {
       _id: 0,
-      TotalExpenses: 1,
-      TotalLivestock: 1,
-      TotalInvestment: 1,
-      TotalSales: 1,
-      NetProfit: 1
+      TotalExpenses: { $toString: "$TotalExpenses" },
+    TotalLivestock: { $toString: "$TotalLivestock" },
+    TotalInvestment: { $toString: "$TotalInvestment" },
+    TotalSales: { $toString: "$TotalSales" },
+    NetProfit: { $toString: "$NetProfit" }
     }
   }
 ]);
