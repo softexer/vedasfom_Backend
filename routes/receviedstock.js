@@ -639,121 +639,161 @@ router.get("/report", async (req, res) => {
                 }
             }
         ]);
-        const overall = await ExpensesModel.aggregate([
-            {
-                $match: { group: address }
-            },
+      const overall = await ExpensesModel.aggregate([
+  {
+    $facet: {
 
-            // total investment
-            {
-                $group: {
-                    _id: null,
-                    TotalInvestment: {
-                        $sum: {
-                            $convert: {
-                                input: "$totalCost",
-                                to: "double",
-                                onError: 0,
-                                onNull: 0
-                            }
-                        }
-                    }
-                }
-            },
-
-            // lookup sales
-            {
-                $lookup: {
-                    from: "salestocks",
-                    pipeline: [
-                        {
-                            $group: {
-                                _id: null,
-                                TotalSales: {
-                                    $sum: {
-                                        $convert: {
-                                            input: "$totalCost",
-                                            to: "double",
-                                            onError: 0,
-                                            onNull: 0
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    ],
-                    as: "salesData"
-                }
-            },
-
-            {
-                $lookup: {
-                    from: "livestocks",
-                    pipeline: [
-                        {
-                            $group: {
-                                _id: null,
-                                TotalinvestData: {
-                                    $sum: {
-                                        $convert: {
-                                            input: "$totalCost",
-                                            to: "double",
-                                            onError: 0,
-                                            onNull: 0
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    ],
-                    as: "livestocksData"
-                }
-            },
-
-            // extract sales amount
-            {
-                $addFields: {
-                    TotalSales: {
-                        $ifNull: [
-                            { $arrayElemAt: ["$salesData.TotalSales", 0] },
-                            0
-                        ]
-                    }
-                }
-            },
-
-            {
-                $addFields: {
-                    TotalinvestData: {
-                        $ifNull: [
-                            { $arrayElemAt: ["$livestocksData.TotalinvestData", 0] },
-                            0
-                        ]
-                    }
-                }
-            },
-            {
-                $addFields: {
-                    TotalInvestment: { $sum: ["$TotalInvestment", "$TotalinvestData"] }
-                }
-            },
-            // Net Profit = Total Sales - Total Investment
-            {
-                $addFields: {
-                    NetProfit: { $subtract: ["$TotalSales", "$TotalInvestment"] }
-                }
-            },
-
-            {
-                $project: {
-                    _id: 0,
-                    TotalInvestment: { $toString: "$TotalInvestment" },
-                    TotalSales: { $toString: "$TotalSales" },
-                    NetProfit: { $toString: "$NetProfit" }
-
-                }
+      // ✅ EXPENSES
+      expenses: [
+        {
+          $match: {
+            $expr: {
+              $eq: [{ $toString: "$group" }, String(address)]
             }
-        ]);
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: {
+              $sum: {
+                $convert: {
+                  input: "$totalCost",
+                  to: "double",
+                  onError: 0,
+                  onNull: 0
+                }
+              }
+            }
+          }
+        }
+      ],
+
+      // ✅ SALES
+      sales: [
+        {
+          $lookup: {
+            from: "salestocks",
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: [{ $toString: "$group" }, String(address)]
+                  }
+                }
+              },
+              {
+                $group: {
+                  _id: null,
+                  total: {
+                    $sum: {
+                      $convert: {
+                        input: "$totalCost",
+                        to: "double",
+                        onError: 0,
+                        onNull: 0
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            as: "salesData"
+          }
+        },
+        {
+          $unwind: {
+            path: "$salesData",
+            preserveNullAndEmptyArrays: true
+          }
+        }
+      ],
+
+      // ✅ LIVESTOCKS
+      livestocks: [
+        {
+          $lookup: {
+            from: "livestocks",
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: [{ $toString: "$group" }, String(address)]
+                  }
+                }
+              },
+              {
+                $group: {
+                  _id: null,
+                  total: {
+                    $sum: {
+                      $convert: {
+                        input: "$totalCost",
+                        to: "double",
+                        onError: 0,
+                        onNull: 0
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            as: "livestockData"
+          }
+        },
+        {
+          $unwind: {
+            path: "$livestockData",
+            preserveNullAndEmptyArrays: true
+          }
+        }
+      ]
+
+    }
+  },
+
+  // ✅ FINAL CALCULATION
+  {
+    $project: {
+      TotalExpenses: {
+        $ifNull: [{ $arrayElemAt: ["$expenses.total", 0] }, 0]
+      },
+      TotalSales: {
+        $ifNull: [{ $arrayElemAt: ["$sales.salesData.total", 0] }, 0]
+      },
+      TotalLivestock: {
+        $ifNull: [{ $arrayElemAt: ["$livestocks.livestockData.total", 0] }, 0]
+      }
+    }
+  },
+
+  {
+    $addFields: {
+      TotalInvestment: {
+        $add: ["$TotalExpenses", "$TotalLivestock"]
+      }
+    }
+  },
+
+  {
+    $addFields: {
+      NetProfit: {
+        $subtract: ["$TotalSales", "$TotalInvestment"]
+      }
+    }
+  },
+
+  {
+    $project: {
+      _id: 0,
+      TotalExpenses: 1,
+      TotalLivestock: 1,
+      TotalInvestment: 1,
+      TotalSales: 1,
+      NetProfit: 1
+    }
+  }
+]);
         return res.json({
             response: 3, message: "Total stock data fetch successfully", TotalInvestment: finalOutput, DamageSummary: damageSummary, FeedSummary: FeedSummary, OtherSummary: OtherSummary, OverallProfitLoss: overall
         })
