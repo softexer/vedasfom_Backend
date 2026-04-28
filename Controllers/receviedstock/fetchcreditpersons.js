@@ -16,55 +16,23 @@ router.get('/fetchcreditpersons', async (req, res) => {
         }
 
         // Fetch matching records from salesstock
-      const summary = await SalesStock.aggregate([
-    {
-        $match: {
-            group: address,
-            creditperson: { $ne: "" }
-        }
-    },
-    {
-        $group: {
-            _id: {
-                creditperson: "$creditperson",
-                category: "$category"
-            },
-            amount: {
-                $sum: {
-                    $convert: {
-                        input: "$totalCost",
-                        to: "double",
-                        onError: 0,
-                        onNull: 0
-                    }
+        const summary = await SalesStock.aggregate([
+            {
+                $match: {
+                    group: address,
+                    creditperson: { $ne: "" }
                 }
-            }
-        }
-    },
-    {
-        $lookup: {
-            from: "creditpeople", 
-            localField: "_id.creditperson",
-            foreignField: "creditperson",
-            as: "creditData"
-        }
-    },
-    {
-        $addFields: {
-            previousAmount: {
-                $sum: {
-                    $map: {
-                        input: {
-                            $filter: {
-                                input: { $arrayElemAt: ["$creditData.credits", 0] },
-                                as: "c",
-                                cond: { $eq: ["$$c.category", "$_id.category"] }
-                            }
-                        },
-                        as: "item",
-                        in: {
+            },
+            {
+                $group: {
+                    _id: {
+                        creditperson: "$creditperson",
+                        category: "$category"
+                    },
+                    amount: {
+                        $sum: {
                             $convert: {
-                                input: "$$item.totalCost",
+                                input: "$totalCost",
                                 to: "double",
                                 onError: 0,
                                 onNull: 0
@@ -72,23 +40,56 @@ router.get('/fetchcreditpersons', async (req, res) => {
                         }
                     }
                 }
+            },
+            {
+                $lookup: {
+                    from: "creditpeople",
+                    localField: "_id.creditperson",
+                    foreignField: "creditperson",
+                    as: "creditData"
+                }
+            },
+            {
+                $addFields: {
+                    previousAmount: {
+                        $sum: {
+                            $map: {
+                                input: {
+                                    $filter: {
+                                        input: { $arrayElemAt: ["$creditData.credits", 0] },
+                                        as: "c",
+                                        cond: { $eq: ["$$c.category", "$_id.category"] }
+                                    }
+                                },
+                                as: "item",
+                                in: {
+                                    $convert: {
+                                        input: "$$item.totalCost",
+                                        to: "double",
+                                        onError: 0,
+                                        onNull: 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    creditpersonName: "$_id.creditperson",
+                    category: "$_id.category",
+                    amount: { $toString: "$amount" },
+                    previousAmount: { $toString: "$previousAmount" }
+                }
             }
-        }
-    },
-    {
-        $project: {
-            _id: 0,
-            creditpersonName: "$_id.creditperson",
-            category: "$_id.category",
-            amount: { $toString: "$amount" },
-            previousAmount: { $toString: "$previousAmount" }
-        }
-    }
-]);
+        ]);
         if (summary.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'No matching records found'
+            return res.status(200).json({
+                response: 0, message: "No data found",
+                data: []
+               
             });
         }
 
