@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var ReceviedStock = require('../Controllers/receviedstock/receviedstock');
+var LivestockModel = require('../app/Models/stock');
 var ReceviedStockData = require('../app/Models/stock');
 var ExpensesModel = require('../app/Models/expenses')
 var fileupload = require('express-fileupload');
@@ -639,163 +640,146 @@ router.get("/report", async (req, res) => {
                 }
             }
         ]);
-      const overall = await ExpensesModel.aggregate([
-  {
-    $facet: {
+  const [expenseResult, salesResult, livestockResult] = await Promise.all([
 
-      // ✅ EXPENSES
-      expenses: [
-        {
-          $match: {
-            $expr: {
-              $eq: [{ $toString: "$group" }, String(address)]
+
+  ExpensesModel.aggregate([
+    {
+      $match: {
+        $expr: {
+          $eq: [
+            { $toString: "$group" },
+            String(address)
+          ]
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        total: {
+          $sum: {
+            $convert: {
+              input: "$totalCost",
+              to: "double",
+              onError: 0,
+              onNull: 0
             }
           }
-        },
-        {
-          $group: {
-            _id: null,
-            total: {
-              $sum: {
-                $convert: {
-                  input: "$totalCost",
-                  to: "double",
-                  onError: 0,
-                  onNull: 0
-                }
-              }
+        }
+      }
+    }
+  ]),
+
+  // =========================
+  // SALES
+  // =========================
+  SalesModel.aggregate([
+    {
+      $match: {
+        $expr: {
+          $eq: [
+            { $toString: "$group" },
+            String(address)
+          ]
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        total: {
+          $sum: {
+            $convert: {
+              input: "$totalCost",
+              to: "double",
+              onError: 0,
+              onNull: 0
             }
           }
         }
-      ],
+      }
+    }
+  ]),
 
-      // ✅ SALES
-      sales: [
-        {
-          $lookup: {
-            from: "salestocks",
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $eq: [{ $toString: "$group" }, String(address)]
-                  }
-                }
-              },
-              {
-                $group: {
-                  _id: null,
-                  total: {
-                    $sum: {
-                      $convert: {
-                        input: "$totalCost",
-                        to: "double",
-                        onError: 0,
-                        onNull: 0
-                      }
-                    }
-                  }
-                }
-              }
-            ],
-            as: "salesData"
-          }
-        },
-        {
-          $unwind: {
-            path: "$salesData",
-            preserveNullAndEmptyArrays: true
+  // =========================
+  // LIVESTOCK
+  // =========================
+  LivestockModel.aggregate([
+    {
+      $match: {
+        $expr: {
+          $eq: [
+            { $toString: "$group" },
+            String(address)
+          ]
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        total: {
+          $sum: {
+            $convert: {
+              input: "$totalCost",
+              to: "double",
+              onError: 0,
+              onNull: 0
+            }
           }
         }
-      ],
-
-      // ✅ LIVESTOCKS
-      livestocks: [
-        {
-          $lookup: {
-            from: "livestocks",
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $eq: [{ $toString: "$group" }, String(address)]
-                  }
-                }
-              },
-              {
-                $group: {
-                  _id: null,
-                  total: {
-                    $sum: {
-                      $convert: {
-                        input: "$totalCost",
-                        to: "double",
-                        onError: 0,
-                        onNull: 0
-                      }
-                    }
-                  }
-                }
-              }
-            ],
-            as: "livestockData"
-          }
-        },
-        {
-          $unwind: {
-            path: "$livestockData",
-            preserveNullAndEmptyArrays: true
-          }
-        }
-      ]
-
-    }
-  },
-
-  // ✅ FINAL CALCULATION
-  {
-    $project: {
-      TotalExpenses: {
-        $ifNull: [{ $arrayElemAt: ["$expenses.total", 0] }, 0]
-      },
-      TotalSales: {
-        $ifNull: [{ $arrayElemAt: ["$sales.salesData.total", 0] }, 0]
-      },
-      TotalLivestock: {
-        $ifNull: [{ $arrayElemAt: ["$livestocks.livestockData.total", 0] }, 0]
       }
     }
-  },
+  ])
 
-  {
-    $addFields: {
-      TotalInvestment: {
-        $add: ["$TotalExpenses", "$TotalLivestock"]
-      }
-    }
-  },
-
-  {
-    $addFields: {
-      NetProfit: {
-        $subtract: ["$TotalSales", "$TotalInvestment"]
-      }
-    }
-  },
-
-  {
-    $project: {
-      _id: 0,
-      TotalExpenses: { $toString: "$TotalExpenses" },
-    TotalLivestock: { $toString: "$TotalLivestock" },
-    TotalInvestment: { $toString: "$TotalInvestment" },
-    TotalSales: { $toString: "$TotalSales" },
-    NetProfit: { $toString: "$NetProfit" }
-    }
-  }
 ]);
+
+
+// =========================
+// GET TOTALS
+// =========================
+
+const TotalExpenses =
+  expenseResult.length > 0
+    ? expenseResult[0].total
+    : 0;
+
+const TotalSales =
+  salesResult.length > 0
+    ? salesResult[0].total
+    : 0;
+
+const TotalLivestock =
+  livestockResult.length > 0
+    ? livestockResult[0].total
+    : 0;
+
+
+
+
+const TotalInvestment =
+  TotalExpenses + TotalLivestock;
+
+const NetProfit =
+  TotalSales - TotalInvestment;
+
+
+const overall = 
+  [
+    {
+      TotalExpenses: String(TotalExpenses),
+      TotalLivestock: String(TotalLivestock),
+      TotalInvestment: String(TotalInvestment),
+      TotalSales: String(TotalSales),
+      NetProfit: String(NetProfit)
+    }
+  ]
+
+
+console.log(overall);
         return res.json({
-            response: 3, message: "Total stock data fetch successfully", TotalInvestment: finalOutput, DamageSummary: damageSummary, FeedSummary: FeedSummary, OtherSummary: OtherSummary, OverallProfitLoss: overall
+            response: 3, message: "Total stock data fetch successfully", TotalInvestment: finalOutput, DamageSummary: damageSummary, FeedSummary: FeedSummary, OtherSummary: OtherSummary, OverallProfitLoss:overall
         })
 
 
